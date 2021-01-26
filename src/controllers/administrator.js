@@ -38,7 +38,7 @@ module.exports = {
   },
 
   /**
-   * @api {post} /administrator/sendcredit
+   * @api {post} /administrator/sendcredit 管理员发送信用点给银行
    * @apiName 管理员发送信用点给银行
    * @apiGroup Administrator
    * @apiParam {String} bank_address  
@@ -67,7 +67,7 @@ module.exports = {
    * @api {post} /administrator/recyclecredit 管理员从银行回收信用点
    * @apiGroup Administrator
    * @apiParam {String} bank_address  
-   * @apiParam {Number} amount      要发放的信用点数量
+   * @apiParam {Number} amount      要回收的信用点数量
    * @apiSuccess {Object} data
    * @apiSuccess {String} msg 结果描述
    * @apiSuccess {Number} code 状态码
@@ -92,8 +92,8 @@ module.exports = {
    * @api {get} /administrator/:address 根据地址获取管理员信息
    * @apiGroup Administrator 
    * @apiSuccess {Object[]} data
-   * @apiSuccess {String} data.addr // 银行地址
-   * @apiSuccess {Number} data.outCredit // 银行发放的信用点
+   * @apiSuccess {String} data.addr // 管理员地址
+   * @apiSuccess {Number} data.outCredit // 管理员发放的信用点
    */
   getAdministratorInfoByAddress: async (ctx, next) => {
 

@@ -76,14 +76,14 @@ define({ "api": [
             "type": "String",
             "optional": false,
             "field": "data.addr",
-            "description": "<p>// 银行地址</p>"
+            "description": "<p>// 管理员地址</p>"
           },
           {
             "group": "Success 200",
             "type": "Number",
             "optional": false,
             "field": "data.outCredit",
-            "description": "<p>// 银行发放的信用点</p>"
+            "description": "<p>// 管理员发放的信用点</p>"
           }
         ]
       }
@@ -113,7 +113,7 @@ define({ "api": [
             "type": "Number",
             "optional": false,
             "field": "amount",
-            "description": "<p>要发放的信用点数量</p>"
+            "description": "<p>要回收的信用点数量</p>"
           }
         ]
       }
@@ -153,7 +153,7 @@ define({ "api": [
   {
     "type": "post",
     "url": "/administrator/sendcredit",
-    "title": "",
+    "title": "管理员发送信用点给银行",
     "name": "管理员发送信用点给银行",
     "group": "Administrator",
     "parameter": {
@@ -753,6 +753,63 @@ define({ "api": [
     "filename": "src/controllers/certifier.js",
     "groupTitle": "Certifier",
     "name": "GetCertifiersAddr"
+  },
+  {
+    "type": "post",
+    "url": "/certifiers/sendcredit",
+    "title": "监管机构发送信用点给核心企业",
+    "name": "监管机构发送信用点给核心企业",
+    "group": "Certifier",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "core_company_address",
+            "description": ""
+          },
+          {
+            "group": "Parameter",
+            "type": "Number",
+            "optional": false,
+            "field": "amount",
+            "description": "<p>要发放的信用点数量</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "type": "Object",
+            "optional": false,
+            "field": "data",
+            "description": ""
+          },
+          {
+            "group": "Success 200",
+            "type": "String",
+            "optional": false,
+            "field": "msg",
+            "description": "<p>结果描述</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "Number",
+            "optional": false,
+            "field": "code",
+            "description": "<p>状态码</p>"
+          }
+        ]
+      }
+    },
+    "version": "0.0.0",
+    "filename": "src/controllers/certifier.js",
+    "groupTitle": "Certifier"
   },
   {
     "type": "post",

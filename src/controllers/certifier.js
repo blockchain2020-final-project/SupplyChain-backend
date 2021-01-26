@@ -54,5 +54,20 @@ module.exports = {
    */
   getCertifierByAddress: async (ctx, next) => {
 
+  },
+
+  /**
+   * @api {post} /certifiers/sendcredit 监管机构发送信用点给核心企业
+   * @apiName 监管机构发送信用点给核心企业
+   * @apiGroup Certifier
+   * @apiParam {String} core_company_address  
+   * @apiParam {Number} amount      要发放的信用点数量
+   * @apiSuccess {Object} data
+   * @apiSuccess {String} msg 结果描述
+   * @apiSuccess {Number} code 状态码
+   */
+  sendCreditPointToBank: async (ctx, next) => {
+
   }
+
 }
