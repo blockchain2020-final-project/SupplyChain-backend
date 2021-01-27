@@ -5,3 +5,6 @@ const router = new Router();
 module.exports = exportRtr(router)
 
 router.route('').post(CertCtrl.createCertifier)
+router.route('').get(CertCtrl.getAllCertifiers)
+router.route('/sendcredit').post(CertCtrl.sendCreditPointToBank)
+router.route('/:addr').get(CertCtrl.getCertifierByAddress)

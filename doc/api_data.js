@@ -14,13 +14,6 @@ define({ "api": [
             "optional": false,
             "field": "addr",
             "description": "<p>地址，一串哈希值，0x开头，总长度(包含0x)为42，例如(0x27a28f09ec7accce2eecc27ebcd9453226ed3e52)</p>"
-          },
-          {
-            "group": "Parameter",
-            "type": "String",
-            "optional": false,
-            "field": "type",
-            "description": "<p>类型，(bank/administrator/core_company/company/certifier)</p>"
           }
         ]
       }
@@ -437,106 +430,6 @@ define({ "api": [
     "filename": "src/controllers/bank.js",
     "groupTitle": "Bank",
     "name": "GetBanksAddr"
-  },
-  {
-    "type": "get",
-    "url": "/banks/:addr/receipts",
-    "title": "根据地址获取所有的贷款",
-    "group": "Bank",
-    "success": {
-      "fields": {
-        "Success 200": [
-          {
-            "group": "Success 200",
-            "type": "String",
-            "optional": false,
-            "field": "msg",
-            "description": "<p>结果描述</p>"
-          },
-          {
-            "group": "Success 200",
-            "type": "Number",
-            "optional": false,
-            "field": "code",
-            "description": "<p>状态码</p>"
-          },
-          {
-            "group": "Success 200",
-            "type": "Object[]",
-            "optional": false,
-            "field": "data",
-            "description": "<p>所有贷款单数组</p>"
-          },
-          {
-            "group": "Success 200",
-            "type": "String",
-            "optional": false,
-            "field": "data.id",
-            "description": ""
-          },
-          {
-            "group": "Success 200",
-            "type": "String",
-            "optional": false,
-            "field": "data.debtorAddr",
-            "description": ""
-          },
-          {
-            "group": "Success 200",
-            "type": "String",
-            "optional": false,
-            "field": "data.debteeAddr",
-            "description": ""
-          },
-          {
-            "group": "Success 200",
-            "type": "Number",
-            "optional": false,
-            "field": "data.curAmount",
-            "description": ""
-          },
-          {
-            "group": "Success 200",
-            "type": "Number",
-            "optional": false,
-            "field": "data.oriAmount",
-            "description": ""
-          },
-          {
-            "group": "Success 200",
-            "type": "Number",
-            "optional": false,
-            "field": "data.createTime",
-            "description": ""
-          },
-          {
-            "group": "Success 200",
-            "type": "Number",
-            "optional": false,
-            "field": "data.deadline",
-            "description": ""
-          },
-          {
-            "group": "Success 200",
-            "type": "String",
-            "optional": false,
-            "field": "bankSignature",
-            "description": ""
-          },
-          {
-            "group": "Success 200",
-            "type": "String",
-            "optional": false,
-            "field": "coreCompanySignature",
-            "description": ""
-          }
-        ]
-      }
-    },
-    "version": "0.0.0",
-    "filename": "src/controllers/bank.js",
-    "groupTitle": "Bank",
-    "name": "GetBanksAddrReceipts"
   },
   {
     "type": "post",
@@ -1142,6 +1035,63 @@ define({ "api": [
     "groupTitle": "Company"
   },
   {
+    "type": "patch",
+    "url": "/companies",
+    "title": "注册核心企业",
+    "name": "普通企业提升为核心企业",
+    "group": "Company",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "company_address",
+            "description": ""
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "company_name",
+            "description": ""
+          }
+        ]
+      }
+    },
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "type": "String",
+            "optional": false,
+            "field": "msg",
+            "description": "<p>结果描述</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "Number",
+            "optional": false,
+            "field": "code",
+            "description": "<p>状态码 200是成功，403是无权限</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "Object[]",
+            "optional": false,
+            "field": "data",
+            "description": "<p>数据</p>"
+          }
+        ]
+      }
+    },
+    "version": "0.0.0",
+    "filename": "src/controllers/company.js",
+    "groupTitle": "Company"
+  },
+  {
     "type": "get",
     "url": "/core_companies",
     "title": "获取全部核心企业",
@@ -1273,6 +1223,106 @@ define({ "api": [
   },
   {
     "type": "get",
+    "url": "/core_companies/:addr/receipts",
+    "title": "获取核心企业的相关应收账款单",
+    "group": "CoreCompany",
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "type": "String",
+            "optional": false,
+            "field": "msg",
+            "description": "<p>结果描述</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "Number",
+            "optional": false,
+            "field": "code",
+            "description": "<p>状态码</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "Object[]",
+            "optional": false,
+            "field": "data",
+            "description": "<p>所有应收账款单数组</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "String",
+            "optional": false,
+            "field": "data.id",
+            "description": ""
+          },
+          {
+            "group": "Success 200",
+            "type": "String",
+            "optional": false,
+            "field": "data.debtorAddr",
+            "description": ""
+          },
+          {
+            "group": "Success 200",
+            "type": "String",
+            "optional": false,
+            "field": "data.debteeAddr",
+            "description": ""
+          },
+          {
+            "group": "Success 200",
+            "type": "Number",
+            "optional": false,
+            "field": "data.curAmount",
+            "description": "<p>还了多少钱</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "Number",
+            "optional": false,
+            "field": "data.oriAmount",
+            "description": "<p>总共要换多少钱</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "Number",
+            "optional": false,
+            "field": "data.createTime",
+            "description": ""
+          },
+          {
+            "group": "Success 200",
+            "type": "Number",
+            "optional": false,
+            "field": "data.deadline",
+            "description": ""
+          },
+          {
+            "group": "Success 200",
+            "type": "String",
+            "optional": false,
+            "field": "data.bankSignature",
+            "description": ""
+          },
+          {
+            "group": "Success 200",
+            "type": "String",
+            "optional": false,
+            "field": "data.coreCompanySignature",
+            "description": ""
+          }
+        ]
+      }
+    },
+    "version": "0.0.0",
+    "filename": "src/controllers/core_company.js",
+    "groupTitle": "CoreCompany",
+    "name": "GetCore_companiesAddrReceipts"
+  },
+  {
+    "type": "get",
     "url": "/core_companies/:addr/transactions",
     "title": "获取某个核心企业的全部交易",
     "group": "CoreCompany",
@@ -1352,7 +1402,7 @@ define({ "api": [
   },
   {
     "type": "post",
-    "url": "/core_companies/:addr/transactions",
+    "url": "/core_companies/transactions",
     "title": "发起一笔交易",
     "group": "CoreCompany",
     "parameter": {
@@ -1399,63 +1449,6 @@ define({ "api": [
     "version": "0.0.0",
     "filename": "src/controllers/core_company.js",
     "groupTitle": "CoreCompany",
-    "name": "PostCore_companiesAddrTransactions"
-  },
-  {
-    "type": "patch",
-    "url": "/companies",
-    "title": "注册核心企业",
-    "name": "普通企业提升为核心企业",
-    "group": "CoreCompany",
-    "parameter": {
-      "fields": {
-        "Parameter": [
-          {
-            "group": "Parameter",
-            "type": "String",
-            "optional": false,
-            "field": "company_address",
-            "description": ""
-          },
-          {
-            "group": "Parameter",
-            "type": "String",
-            "optional": false,
-            "field": "company_name",
-            "description": ""
-          }
-        ]
-      }
-    },
-    "success": {
-      "fields": {
-        "Success 200": [
-          {
-            "group": "Success 200",
-            "type": "String",
-            "optional": false,
-            "field": "msg",
-            "description": "<p>结果描述</p>"
-          },
-          {
-            "group": "Success 200",
-            "type": "Number",
-            "optional": false,
-            "field": "code",
-            "description": "<p>状态码 200是成功，403是无权限</p>"
-          },
-          {
-            "group": "Success 200",
-            "type": "Object[]",
-            "optional": false,
-            "field": "data",
-            "description": "<p>数据</p>"
-          }
-        ]
-      }
-    },
-    "version": "0.0.0",
-    "filename": "src/controllers/core_company.js",
-    "groupTitle": "CoreCompany"
+    "name": "PostCore_companiesTransactions"
   }
 ] });

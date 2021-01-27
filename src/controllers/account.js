@@ -21,7 +21,6 @@ module.exports = {
    * @apiName 登录
    * @apiGroup Account
    * @apiParam {String} addr 地址，一串哈希值，0x开头，总长度(包含0x)为42，例如(0x27a28f09ec7accce2eecc27ebcd9453226ed3e52)
-   * @apiParam {String} type 类型，(bank/administrator/core_company/company/certifier)
    * @apiSuccess {String} msg 结果描述
    * @apiSuccess {Number} code 状态码
    * @apiSuccess {Object[]} data

@@ -10,3 +10,5 @@ module.exports = exportRtr(router)
 
 router.route('').post(BankCtrl.createBank)
 router.route('/sendcredit').post(BankCtrl.sendCreditToCoreCompany)
+router.route('').get(BankCtrl.getAllBanks)
+router.route('/:addr').get(BankCtrl.getBankByAddress)

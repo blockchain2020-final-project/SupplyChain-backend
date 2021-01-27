@@ -47,6 +47,32 @@ module.exports = {
 
   },
 
+  /**
+ * @api {patch} /companies 注册核心企业
+ * @apiName 普通企业提升为核心企业
+ * @apiGroup Company
+ * @apiParam {String} company_address
+ * @apiParam {String} company_name
+ * @apiSuccess {String} msg 结果描述
+ * @apiSuccess {Number} code 状态码 200是成功，403是无权限
+ * @apiSuccess {Object[]} data 数据
+ */
+  registerCoreCompany: async (ctx, next) => {
+    const type = ctx.cookies.get('type')
+    const { company_address, company_name } = ctx.request.body
+    if (type != "certifier") {
+      sendData(ctx, {}, 'UNAUTHORIZED', '您没有监管机构权限', 403)
+    }
+    const res = await call({
+      // TODO: finish the storage of contract
+      contractAddress: AccountServ.getContractAddress(),
+      contractName: AccountServ.getContractName(),
+      function: "registerCoreCompany",
+      parameters: [company_address, company_name]
+    })
+    sendData(ctx, res, 'OK', "注册企业成功", 200)
+  },
+
 
   /**
    * @api {get} /companies/:addr 根据地址获取普通企业
