@@ -261,5 +261,147 @@ module.exports = {
     })
     sendData(ctx, res, 'OK', "注册核心企业成功", 200)
   },
+  /** 
+   * @api {get} /core_companies/:addr/unsettledreceipts 获取某个普通企业为收款方的未还清的交易账单
+   * @apiGroup Company
+   * @apiSuccess {Object[]} data 未还清的交易账单
+   * @apiSuccess {Number} data.id
+   * @apiSuccess {String} data.payeeAddr
+   * @apiSuccess {String} data.payerAddr
+   * @apiSuccess {Number} data.paidAmount
+   * @apiSuccess {Number} data.oriAmount
+   * @apiSuccess {Number} data.createTime
+   * @apiSuccess {Number} data.deadline
+   * @apiSuccess {Number} data.receiptStatus
+   * @apiSuccess {String} data.bankSignature
+   * @apiSuccess {String} data.coreCompanySignature
+   * @apiSuccess {String} data.info
+   * @apiSuccess {Number} data.isFinance
+   * @apiSuccess {Number} code 状态码 200是成功
+  */
+  getCompanyUnsettledReceipts: async (ctx, next) => {
+    const addr = ctx.params.address
+    let ca = await AccountServ.getContractAddress()
+    const res = await call({
+      contractAddress: ca,
+      contractName: AccountServ.getContractName(),
+      function: "getAllUnsettedReceipt",
+      parameters: [addr]
+    })
+    addrs = res.output.result[0]
+    let i = 0
+    let ret = []
+    for (i = 0; i < addrs.length; i++) {
+      let t = addrs[i];
+      const temp = await call({
+        contractAddress: ca,
+        contractName: AccountServ.getContractName(),
+        function: "getReceipt",
+        parameters: [addr, t]
+      })
+      const bank = temp.output.result[0]
+      console.log(temp.output.result[0])
+      ret.push(bank)
+    }
+    sendData(ctx, res.output.result, 'OK', '查询所有以某公司为收款方的未还清的交易账单成功', 200)
+  },
+
+
+  /** 
+   * @api {get} /core_companies/:addr/unpaidreceipts 获取某个普通企业为付款方的未还清的交易账单
+   * @apiGroup Company
+   * @apiSuccess {Object[]} data 未还清的交易账单
+   * @apiSuccess {Number} data.id
+   * @apiSuccess {String} data.payeeAddr
+   * @apiSuccess {String} data.payerAddr
+   * @apiSuccess {Number} data.paidAmount
+   * @apiSuccess {Number} data.oriAmount
+   * @apiSuccess {Number} data.createTime
+   * @apiSuccess {Number} data.deadline
+   * @apiSuccess {Number} data.receiptStatus
+   * @apiSuccess {String} data.bankSignature
+   * @apiSuccess {String} data.coreCompanySignature
+   * @apiSuccess {String} data.info
+   * @apiSuccess {Number} data.isFinance
+   * @apiSuccess {Number} code 状态码 200是成功
+  */
+  getCompanyUnpaidReceipts: async (ctx, next) => {
+    const addr = ctx.params.address
+    let ca = await AccountServ.getContractAddress()
+    const res = await call({
+      contractAddress: ca,
+      contractName: AccountServ.getContractName(),
+      function: "getAllUnpaidReceipt",
+      parameters: [addr]
+    })
+    addrs = res.output.result[0]
+    let i = 0
+    let ret = []
+    for (i = 0; i < addrs.length; i++) {
+      let t = addrs[i];
+      const temp = await call({
+        contractAddress: ca,
+        contractName: AccountServ.getContractName(),
+        function: "getReceipt",
+        parameters: [addr, t]
+      })
+      const bank = temp.output.result[0]
+      console.log(temp.output.result[0])
+      ret.push(bank)
+    }
+    sendData(ctx, res.output.result, 'OK', '查询所有以某公司为付款方的未还清的交易账单成功', 200)
+  },
+
+  /**
+   * @api {post} /core_companies/transactionrespond 核心企业响应某一笔交易请求
+   * @apiParam {String} senderAddr    // 收款人地址
+   * @apiParam {String} payerAddr     // 付款人地址
+   * @apiParam {String} transactionId // 针对的交易id
+   * @apiParam {Number} respond       // 1 为接受，2 为拒绝
+   * @apiGroup CoreCompany
+   * @apiSuccess {Object[]} data
+   * 
+   */
+  transactionRespond: async (ctx, next) => {
+    let ca = await AccountServ.getContractAddress()
+    const { senderAddr, payerAddr, transactionId, respond } = ctx.request.body
+    const res = await call({
+      contractAddress: ca,
+      contractName: AccountServ.getContractName(),
+      function: "transactionRespond",
+      parameters: [senderAddr, payerAddr, transactionId, respond]
+    })
+    if (res.output.error != [] && res.output.error != undefined) {
+      sendData(ctx, res.output.error, 'ERROR', '异常', 403)
+    } else {
+      sendData(ctx, res, 'OK', '核心企业响应某一笔交易请求成功', 200)
+    }
+  },
+  /**
+  * @api {post} /companies/payreceipt 核心企业还某笔账单（应收款账单或者贷款）
+  * @apiGroup CoreCompany
+  * @apiParam {String} senderAddr  // 还款人的地址
+  * @apiParam {String} payerAddr   // 收款人的地址
+  * @apiParam {Number} receiptId  // 针对的账单 id
+  * @apiParam {Number} amount    // 钱数
+  * @apiParam {Bool}  isFinance  // true 为还账单，false 为还贷款
+  */
+  payReceipt: async (ctx, next) => {
+    let ca = await AccountServ.getContractAddress()
+    const { senderAddr, payerAddr, receiptId, amount, isFinance } = ctx.request.body
+    const res = await call({
+      contractAddress: ca,
+      contractName: AccountServ.getContractName(),
+      function: "payReceipt",
+      parameters: [senderAddr, payerAddr, receiptId, amount, isFinance]
+    })
+    if (res.output.error != [] && res.output.error != undefined) {
+      sendData(ctx, res.output.error, 'ERROR', '异常', 403)
+    } else {
+      sendData(ctx, res, 'OK', '核心企业还某笔账单（应收款账单或者贷款）成功', 200)
+    }
+  },
+
+
 
 }

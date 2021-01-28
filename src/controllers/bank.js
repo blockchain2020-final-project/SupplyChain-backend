@@ -205,6 +205,77 @@ module.exports = {
     }
     sendData(ctx, ret, 'OK', "获取全部未结算的贷款信息成功", 200)
 
+  },
+
+  /**
+   * @api {post} /banks/financerespond 银行响应公司的贷款
+   * @apiGroup Bank
+   * @apiParam {String} senderAddr  银行地址
+   * @apiParam {String} payerAddr   付款人信息
+   * @apiParam {Number} financeId
+   * @apiParam {Number} respond    1 为接受，2为拒绝
+   */
+  financeRespond: async (ctx, next) => {
+    let ca = await AccountServ.getContractAddress()
+    const { senderAddr, payerAddr, financeId, respond } = ctx.request.body
+    const res = await call({
+      contractAddress: ca,
+      contractName: AccountServ.getContractName(),
+      function: "financeRespond",
+      parameters: [senderAddr, payerAddr, financeId, respond]
+    })
+    if (res.output.error != undefined && res.output.error != []) {
+      sendData(ctx, res.output.error, 'ERROR', '银行响应公司的贷款失败', 403)
+    } else {
+      sendData(ctx, res, 'OK', '银行响应公司的贷款成功', 200)
+    }
+  },
+
+  /**
+   * @api {post} /banks/deposite 银行给公司发钱
+   * @apiGroup Bank
+   * @apiParam {String} companyAddr 公司地址
+   * @apiParam {String} amount 钱数
+   */
+  depositeMoney: async (ctx, next) => {
+    const addr = ctx.cookies.get('addr')
+    let ca = await AccountServ.getContractAddress()
+    const { companyAddr, amount } = ctx.request.body
+    const res = await call({
+      contractAddress: ca,
+      contractName: AccountServ.getContractName(),
+      function: "depositCash",
+      parameters: [addr, companyAddr, amount]
+    })
+    if (res.output.error != undefined && res.output.error != []) {
+      sendData(ctx, res.output.error, 'ERROR', '银行给公司发钱异常', 403)
+    } else {
+      sendData(ctx, res, 'OK', '银行给公司发钱成功', 200)
+    }
+  },
+
+  /**
+   * @api {post} /banks/withdraw 银行给公司扣钱
+   * @apiGroup Bank
+   * @apiParam {String} companyAddr 公司地址
+   * @apiParam {String} amount
+   */
+  withdrawMoney: async (ctx, next) => {
+    const addr = ctx.cookies.get('addr')
+    let ca = await AccountServ.getContractAddress()
+    const { companyAddr, amount } = ctx.request.body
+    const res = await call({
+      contractAddress: ca,
+      contractName: AccountServ.getContractName(),
+      function: "withdrawCash",
+      parameters: [addr, companyAddr, amount]
+    })
+    if (res.output.error != undefined && res.output.error != []) {
+      sendData(ctx, res.output.error, 'ERROR', '银行给公司扣钱异常', 403)
+    } else {
+      sendData(ctx, res, 'OK', '银行给公司扣钱成功', 200)
+    }
   }
+
 
 }

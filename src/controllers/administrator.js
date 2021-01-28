@@ -115,5 +115,51 @@ module.exports = {
       parameters: [addr]
     })
     sendData(ctx, res.output.result, 'OK', "获取管理员信息成功", 200)
+  },
+
+  /**
+ * @api {post} /administrator/deposite 管理员给银行发钱
+ * @apiGroup Administrator
+ * @apiParam {String} bankAddr 银行地址
+ * @apiParam {String} amount 钱数
+ */
+  depositeMoney: async (ctx, next) => {
+    const addr = ctx.cookies.get('addr')
+    let ca = await AccountServ.getContractAddress()
+    const { bankAddr, amount } = ctx.request.body
+    const res = await call({
+      contractAddress: ca,
+      contractName: AccountServ.getContractName(),
+      function: "depositCash",
+      parameters: [addr, bankAddr, amount]
+    })
+    if (res.output.error != undefined && res.output.error != []) {
+      sendData(ctx, res.output.error, 'ERROR', '管理员给银行发钱异常', 403)
+    } else {
+      sendData(ctx, res, 'OK', '管理员给银行发钱成功', 200)
+    }
+  },
+
+  /**
+   * @api {post} /administrator/withdraw 管理员给银行扣钱
+   * @apiGroup Administrator
+   * @apiParam {String} bankAddr 公司地址
+   * @apiParam {String} amount
+   */
+  withdrawMoney: async (ctx, next) => {
+    const addr = ctx.cookies.get('addr')
+    let ca = await AccountServ.getContractAddress()
+    const { bankAddr, amount } = ctx.request.body
+    const res = await call({
+      contractAddress: ca,
+      contractName: AccountServ.getContractName(),
+      function: "withdrawCash",
+      parameters: [addr, bankAddr, amount]
+    })
+    if (res.output.error != undefined && res.output.error != []) {
+      sendData(ctx, res.output.error, 'ERROR', '管理员给银行扣钱异常', 403)
+    } else {
+      sendData(ctx, res, 'OK', '管理员给银行扣钱成功', 200)
+    }
   }
 }
