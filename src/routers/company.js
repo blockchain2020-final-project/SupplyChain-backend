@@ -11,7 +11,6 @@ router.route('/:address').get(CompanyCtrl.getCompanyByAddress)
 router.route('/:address/transactions').get(CompanyCtrl.getCompanyTransactions)
 router.route('/:address/receipts').get(CompanyCtrl.getCompanyReceipts)
 router.route('/finances').post(CompanyCtrl.financeRequest)
-router.route('/:address/finances').get(CompanyCtrl.getCompanyFinance)
 router.route('/transactions_new').post(CompanyCtrl.transactionRequestWithNewReceipt)
-router.route('transactions_old').post(CompanyCtrl.transactionRequestWithOldReceipt)
+router.route('/transactions_old').post(CompanyCtrl.transactionRequestWithOldReceipt)
 
