@@ -63,7 +63,11 @@ module.exports = {
       function: "getCoreCompany",
       parameters: [addr]
     })
-    sendData(ctx, res.output.result, 'OK', '根据地址获取企业信息成功', 200)
+    if (res.output != undefined && res.output.error != []) {
+      sendData(ctx, res.output.error, 'ERROR', '异常', 403)
+    } else {
+      sendData(ctx, res.output.result, 'OK', '根据地址获取企业信息成功', 200)
+    }
   },
 
   /**
@@ -181,44 +185,13 @@ module.exports = {
     if (res.output != undefined && res.output.error != []) {
       sendData(ctx, res.output.error, 'ERROR', '异常', 403)
     } else {
-      sendData(ctx, res, 'OK', '普通企业发起贷款请求成功', 200)
+      sendData(ctx, res, 'OK', '核心企业发起贷款请求成功', 200)
     }
   },
 
   /**
-   * @api {get} /core_companies/:addr/receipts 获取核心企业为收款方的，没有还清的应收账款单
-   * @apiGroup CoreCompany
-   * @apiSuccess {String} msg 结果描述
-   * @apiSuccess {Number} code 状态码
-   * @apiSuccess {Object[]} data 所有应收账款单数组
-   * @apiSuccess {String} data.id 
-   * @apiSuccess {String} data.payeeAddr
-   * @apiSuccess {String} data.payerAddr
-   * @apiSuccess {Number} data.paidAmount    还了多少钱
-   * @apiSuccess {Number} data.oriAmount    总共要换多少钱
-   * @apiSuccess {Number} data.createTime
-   * @apiSuccess {Number} data.deadline
-   * @apiSuccess {Number} data.receiptStatus  0 为还没还清；1为已经还清
-   * @apiSuccess {String} data.bankSignature
-   * @apiSuccess {String} data.coreCompanySignature
-   * @apiSuccess {String} data.info
-   * @apiSuccess {Number} data.isFinance
-   */
-  getCoreCompanysReceipts: async (ctx, next) => {
-    const addr = ctx.params.address
-    let ca = await AccountServ.getContractAddress()
-
-    const res = await call({
-      contractAddress: ca,
-      contractName: AccountServ.getContractName(),
-      function: "getAllUnsettedReceipt",
-      parameters: [addr]
-    })
-    sendData(ctx, res.output.result, 'OK', '获取核心企业所有应收款账单成功', 200)
-  },
-  /**
 * @api {post} /core_companies 注册核心企业
-* @apiName 普通企业提升为核心企业
+* @apiName 核心企业提升为核心企业
 * @apiGroup CoreCompany
 * @apiParam {String} company_address
 * @apiParam {String} company_name
@@ -247,7 +220,7 @@ module.exports = {
     sendData(ctx, res, 'OK', "注册核心企业成功", 200)
   },
   /** 
-   * @api {get} /core_companies/:addr/unsettledreceipts 获取某个普通企业为收款方的未还清的交易账单
+   * @api {get} /core_companies/:addr/unsettledreceipts 获取某个核心企业为收款方的未还清的交易账单
    * @apiGroup CoreCompany
    * @apiSuccess {Object[]} data 未还清的交易账单
    * @apiSuccess {Number} data.id
@@ -293,7 +266,7 @@ module.exports = {
 
 
   /** 
-   * @api {get} /core_companies/:addr/unpaidreceipts 获取某个普通企业为付款方的未还清的交易账单
+   * @api {get} /core_companies/:addr/unpaidreceipts 获取某个核心企业为付款方的未还清的交易账单
    * @apiGroup CoreCompany
    * @apiSuccess {Object[]} data 未还清的交易账单
    * @apiSuccess {Number} data.id

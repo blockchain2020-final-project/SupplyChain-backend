@@ -12,7 +12,6 @@ router.route('/transactions_old').post(CoreCompanyCtrl.transactionRequestWithOld
 router.route('/transactionrespond').post(CoreCompanyCtrl.transactionRespond)
 router.route('/payreceipt').post(CoreCompanyCtrl.payReceipt)
 router.route('/:address').get(CoreCompanyCtrl.getCoreCompanyByAddress)
-router.route('/:address/receipts').get(CoreCompanyCtrl.getCoreCompanysReceipts)
 router.route('/:address/transactions').get(CoreCompanyCtrl.getCoreCompanyTransaction)
 // router.route('/:address/finances').get(CoreCompanyCtrl.getCoreCompanyFinance)
 router.route('/:address/unsettledreceipts').get(CoreCompanyCtrl.getCompanyUnsettledReceipts)
