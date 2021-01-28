@@ -41,13 +41,27 @@ module.exports = {
   getAllCertifiers: async (ctx, next) => {
     let ca = await AccountServ.getContractAddress()
     const res = await call({
-      // TODO: finish the storage of contract
       contractAddress: ca,
       contractName: AccountServ.getContractName(),
       function: "getAllCertifier",
       parameters: []
     })
-    sendData(ctx, res, 'OK', '获取全部监督机构成功', 200)
+    addrs = res.output.result[0]
+    let i = 0
+    let ret = []
+    for (i = 0; i < addrs.length; i++) {
+      addr = addrs[i];
+      const temp = await call({
+        contractAddress: ca,
+        contractName: AccountServ.getContractName(),
+        function: "getCertifier",
+        parameters: [addr]
+      })
+      const bank = temp.output.result[0]
+      console.log(temp.output.result[0])
+      ret.push(bank)
+    }
+    sendData(ctx, ret, 'OK', '获取全部监督机构成功', 200)
   },
 
   /**

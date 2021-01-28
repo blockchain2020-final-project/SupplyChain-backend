@@ -44,17 +44,26 @@ module.exports = {
    */
   getAllCompanies: async (ctx, next) => {
     let ca = await AccountServ.getContractAddress()
-
     const res = await call({
-      // TODO: finish the storage of contract
       contractAddress: ca,
       contractName: AccountServ.getContractName(),
       function: "getAllNormalCompany",
       parameters: []
     })
+    addrs = res.output.result[0]
+    let i = 0
     let ret = []
-    if (res.output != 'undefine') {
-      ret = res.output.result
+    for (i = 0; i < addrs.length; i++) {
+      addr = addrs[i];
+      const temp = await call({
+        contractAddress: ca,
+        contractName: AccountServ.getContractName(),
+        function: "getCompany",
+        parameters: [addr]
+      })
+      const bank = temp.output.result[0]
+      console.log(temp.output.result[0])
+      ret.push(bank)
     }
     sendData(ctx, ret, 'OK', '获取全部普通企业成功', 200)
   },
@@ -108,6 +117,21 @@ module.exports = {
       function: "getAllTransactionRequest",
       parameters: [addr]
     })
+    addrs = res.output.result[0]
+    let i = 0
+    let ret = []
+    for (i = 0; i < addrs.length; i++) {
+      let t = addrs[i];
+      const temp = await call({
+        contractAddress: ca,
+        contractName: AccountServ.getContractName(),
+        function: "getTransaction",
+        parameters: [addr, t]
+      })
+      const bank = temp.output.result[0]
+      console.log(temp.output.result[0])
+      ret.push(bank)
+    }
     sendData(ctx, res.output.result, 'OK', '查询所有以某公司为收款方的未还清的交易账单成功', 200)
   },
 

@@ -76,9 +76,21 @@ module.exports = {
       function: "getAllBank",
       parameters: []
     })
+    console.log("banks: ", res.output.result[0])
+    addrs = res.output.result[0]
+    let i = 0
     let ret = []
-    if (res.output != 'undefine') {
-      ret = res.output.result
+    for (i = 0; i < addrs.length; i++) {
+      addr = addrs[i];
+      const temp = await call({
+        contractAddress: ca,
+        contractName: AccountServ.getContractName(),
+        function: "getBank",
+        parameters: [addr]
+      })
+      const bank = temp.output.result[0]
+      console.log(temp.output.result[0])
+      ret.push(bank)
     }
     sendData(ctx, ret, 'OK', "获取全部银行成功", 200)
   },
@@ -107,7 +119,7 @@ module.exports = {
   },
 
   /**
-   * @api {get} /banks/finances 银行获取全部贷款请求
+   * @api {get} /banks/:address/finances 银行获取全部贷款请求
    * @apiGroup Bank
  * @apiSuccess {Object[]} data 贷款
  * @apiSuccess {Number} data.id
@@ -124,17 +136,34 @@ module.exports = {
    */
   getFinancesRequest: async (ctx, next) => {
     let ca = await AccountServ.getContractAddress()
+    let addr = ctx.params.address
     const res = await call({
       contractAddress: ca,
       contractName: AccountServ.getContractName(),
       function: "getAllFinanceRequest",
-      parameters: []
+      parameters: [addr]
     })
-    sendData(ctx, res.output.result, 'OK', '获取所有贷款请求成功', 200)
+    console.log(res)
+    addrs = res.output.result[0]
+    let i = 0
+    let ret = []
+    for (i = 0; i < addrs.length; i++) {
+      let t = addrs[i];
+      const temp = await call({
+        contractAddress: ca,
+        contractName: AccountServ.getContractName(),
+        function: "getTransaction",
+        parameters: [addr, t]
+      })
+      const bank = temp.output.result[0]
+      console.log(temp.output.result[0])
+      ret.push(bank)
+    }
+    sendData(ctx, ret, 'OK', "获取全部贷款信息成功", 200)
   },
 
   /**
- * @api {get} /banks/unsettledfinances 银行获取全部贷款请求
+ * @api {get} /banks/:address/unsettledfinances 银行获取全部未结束的贷款请求
  * @apiGroup Bank
 * @apiSuccess {Object[]} data 贷款
 * @apiSuccess {Number} data.id
@@ -149,15 +178,33 @@ module.exports = {
 * @apiSuccess {Number} data.isFinance 新增字段，判断是否为贷款
 * @apiSuccess {Number} code 状态码 200是成功
  */
-  getFinancesRequest: async (ctx, next) => {
+  getUnsettedFinancesRequest: async (ctx, next) => {
     let ca = await AccountServ.getContractAddress()
+    let addr = ctx.params.address
     const res = await call({
       contractAddress: ca,
       contractName: AccountServ.getContractName(),
-      function: "getAllUnsettledFinanceRequest",
-      parameters: []
+      function: "getAllUnsettedFinance",
+      parameters: [addr]
     })
-    sendData(ctx, res.output.result, 'OK', '获取所有贷款请求成功', 200)
+
+    addrs = res.output.result[0]
+    let i = 0
+    let ret = []
+    for (i = 0; i < addrs.length; i++) {
+      let t = addrs[i];
+      const temp = await call({
+        contractAddress: ca,
+        contractName: AccountServ.getContractName(),
+        function: "getTransaction",
+        parameters: [addr, t]
+      })
+      const bank = temp.output.result[0]
+      console.log(temp.output.result[0])
+      ret.push(bank)
+    }
+    sendData(ctx, ret, 'OK', "获取全部未结算的贷款信息成功", 200)
+
   }
 
 }

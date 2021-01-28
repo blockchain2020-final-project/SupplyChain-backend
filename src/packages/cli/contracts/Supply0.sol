@@ -172,8 +172,9 @@ contract Supply0 {
     {
         bytes memory _baseBytes = bytes(_base);
         bytes memory _valueBytes = bytes(_value);
-        string memory _tmpValue =
-            new string(_baseBytes.length + _valueBytes.length);
+        string memory _tmpValue = new string(
+            _baseBytes.length + _valueBytes.length
+        );
         bytes memory _newValue = bytes(_tmpValue);
         uint256 i;
         uint256 j;
@@ -250,23 +251,58 @@ contract Supply0 {
 
     /** query  */
 
-    function getAllCertifier() public returns (Certifier[] memory) {
-        Certifier[] memory ret = new Certifier[](certCount);
+    // function getAllCertifier() public returns (Certifier[] memory) {
+    //     Certifier[] memory ret = new Certifier[](certCount);
+    //     uint256 cnt = 0;
+    //     for (uint256 i = 0; i < addrCount; i++) {
+    //         if (isCertifier[addrs[i]]) {
+    //             findCertifier(addrs[i]);
+    //             ret[cnt++] = certifier;
+    //         }
+    //     }
+    //     return ret;
+    // }
+
+    function getAllCertifier() public returns (address[] memory) {
+        address[] memory ret = new address[](certCount);
         uint256 cnt = 0;
         for (uint256 i = 0; i < addrCount; i++) {
             if (isCertifier[addrs[i]]) {
                 findCertifier(addrs[i]);
-                ret[cnt++] = certifier;
+                ret[cnt++] = addrs[i];
             }
         }
         return ret;
     }
 
+    // function __getAllCompany(uint256 flag, uint256 count)
+    //     private
+    //     returns (Company[] memory)
+    // {
+    //     Company[] memory ret = new Company[](count);
+    //     uint256 cnt = 0;
+    //     for (uint256 i = 0; i < addrCount; i++) {
+    //         if (
+    //             (flag == 0 &&
+    //                 (isCTypeNormal[addrs[i]] || isCTypeCore[addrs[i]])) ||
+    //             (flag == 1 && isCTypeNormal[addrs[i]]) ||
+    //             (flag == 2 && isCTypeCore[addrs[i]])
+    //         ) {
+    //             findCompany(addrs[i], false);
+    //         } else if (flag == 3 && isCTypeBank[addrs[i]]) {
+    //             findCompany(addrs[i], true);
+    //         }
+    //         Company storage tmp = company;
+    //         ret[cnt++] = tmp;
+    //     }
+    //     return ret;
+    // }
+
     function __getAllCompany(uint256 flag, uint256 count)
         private
-        returns (Company[] memory)
+        returns (address[] memory)
     {
-        Company[] memory ret = new Company[](count);
+        address[] memory ret = new address[](count);
         uint256 cnt = 0;
         for (uint256 i = 0; i < addrCount; i++) {
             if (
@@ -276,28 +312,28 @@ contract Supply0 {
                 (flag == 2 && isCTypeCore[addrs[i]])
             ) {
                 findCompany(addrs[i], false);
+                ret[cnt++] = addrs[i];
             } else if (flag == 3 && isCTypeBank[addrs[i]]) {
                 findCompany(addrs[i], true);
+                ret[cnt++] = addrs[i];
             }
-            Company storage tmp = company;
-            ret[cnt++] = tmp;
         }
         return ret;
     }
 
-    function getAllCompany() public returns (Company[] memory) {
+    function getAllCompany() public returns (address[] memory) {
         return __getAllCompany(0, normalCount + coreCount);
     }
 
-    function getAllNormalCompany() public returns (Company[] memory) {
+    function getAllNormalCompany() public returns (address[] memory) {
         return __getAllCompany(1, normalCount);
     }
 
-    function getAllCoreCompany() public returns (Company[] memory) {
+    function getAllCoreCompany() public returns (address[] memory) {
         return __getAllCompany(2, coreCount);
     }
 
-    function getAllBank() public returns (Company[] memory) {
+    function getAllBank() public returns (address[] memory) {
         return __getAllCompany(3, bankCount);
     }
 
@@ -360,30 +396,63 @@ contract Supply0 {
         return company;
     }
 
+    function getTransaction(address payeeAddr, int256 id)
+        public
+        returns (Transaction memory)
+    {
+        findTransaction(toString(payeeAddr), id);
+        return transaction;
+    }
+
+    function getReceipt(address payeeAddr, int256 id)
+        public
+        returns (Receipt memory)
+    {
+        findReceipt(toString(payeeAddr), id);
+        return receipt;
+    }
+
+    // function __getAllTransactionRequest(address addr)
+    //     private
+    //     returns (Transaction[] memory)
+    // {
+    //     Table t_transaction = openTable(TransactionTable);
+    //     Condition cond = t_transaction.newCondition();
+    //     Entries entries = t_transaction.select(toString(addr), cond);
+    //     uint256 size = uint256(entries.size());
+    //     Transaction[] memory ret = new Transaction[](size);
+    //     Entry entry;
+    //     for (uint256 i = 0; i < size; i++) {
+    //         entry = entries.get(int256(i));
+    //         transaction.payeeAddr = entry.getAddress("payeeAddr");
+    //         transaction.payerAddr = entry.getAddress("payerAddr");
+    //         transaction.id = entry.getInt("id");
+    //         transaction.amount = entry.getUInt("amount");
+    //         transaction.createTime = entry.getUInt("createTime");
+    //         transaction.deadline = entry.getUInt("deadline");
+    //         transaction.tMode = entry.getUInt("tMode");
+    //         transaction.oriReceiptId = entry.getInt("oriReceiptId");
+    //         transaction.requestStatus = entry.getUInt("requestStatus");
+    //         transaction.info = entry.getString("info");
+    //         transaction.isFinance = entry.getUInt("isFinance");
+    //         ret[i] = transaction;
+    //     }
+    //     return ret;
+    // }
+
     function __getAllTransactionRequest(address addr)
         private
-        returns (Transaction[] memory)
+        returns (int256[] memory)
     {
         Table t_transaction = openTable(TransactionTable);
         Condition cond = t_transaction.newCondition();
         Entries entries = t_transaction.select(toString(addr), cond);
         uint256 size = uint256(entries.size());
-        Transaction[] memory ret = new Transaction[](size);
+        int256[] memory ret = new int256[](size);
         Entry entry;
         for (uint256 i = 0; i < size; i++) {
             entry = entries.get(int256(i));
-            transaction.payeeAddr = entry.getAddress("payeeAddr");
-            transaction.payerAddr = entry.getAddress("payerAddr");
-            transaction.id = entry.getInt("id");
-            transaction.amount = entry.getUInt("amount");
-            transaction.createTime = entry.getUInt("createTime");
-            transaction.deadline = entry.getUInt("deadline");
-            transaction.tMode = entry.getUInt("tMode");
-            transaction.oriReceiptId = entry.getInt("oriReceiptId");
-            transaction.requestStatus = entry.getUInt("requestStatus");
-            transaction.info = entry.getString("info");
-            transaction.isFinance = entry.getUInt("isFinance");
-            ret[i] = transaction;
+            ret[i] = entry.getInt("id");
         }
         return ret;
     }
@@ -391,7 +460,7 @@ contract Supply0 {
     // 查询某公司为收款方的所有交易(即该公司为交易请求的接收者)
     function getAllTransactionRequest(address addr)
         public
-        returns (Transaction[] memory)
+        returns (int256[] memory)
     {
         findCompany(addr, false);
         return __getAllTransactionRequest(addr);
@@ -400,15 +469,57 @@ contract Supply0 {
     // 查询某银行为收款方的所有贷款(即该银行为贷款请求的接收者)
     function getAllFinanceRequest(address addr)
         public
-        returns (Transaction[] memory)
+        returns (int256[] memory)
     {
         findCompany(addr, true);
         return __getAllTransactionRequest(addr);
     }
 
+    // function __getAllUnsettedReceipt(address addr, bool isFinance)
+    //     private
+    //     returns (Receipt[] memory)
+    // {
+    //     findCompany(addr, isFinance);
+
+    //     Table t_receipt = openTable(ReceiptTable);
+    //     Condition cond = t_receipt.newCondition();
+    //     if (isFinance == true) {
+    //         cond.EQ("isFinance", 1);
+    //     } else {
+    //         cond.EQ("isFinance", 0);
+    //     }
+    //     cond.EQ("receiptStatus", int256(ReceiptStatus_paying));
+    //     Entries entries = t_receipt.select(toString(addr), cond);
+
+    //     uint256 size = uint256(entries.size());
+    //     Receipt[] memory ret = new Receipt[](size);
+
+    //     Entry entry;
+    //     for (uint256 i = 0; i < size; i++) {
+    //         entry = entries.get(int256(i));
+    //         receipt.payeeAddr = entry.getAddress("payeeAddr");
+    //         receipt.payerAddr = entry.getAddress("payerAddr");
+    //         receipt.id = entry.getInt("id");
+    //         receipt.paidAmount = entry.getUInt("paidAmount");
+    //         receipt.oriAmount = entry.getUInt("oriAmount");
+    //         receipt.createTime = entry.getUInt("createTime");
+    //         receipt.deadline = entry.getUInt("deadline");
+    //         receipt.receiptStatus = entry.getUInt("receiptStatus");
+    //         receipt.bankSignature = entry.getString("bankSignature");
+    //         receipt.coreCompanySignature = entry.getString(
+    //             "coreCompanySignature"
+    //         );
+    //         receipt.info = entry.getString("info");
+    //         receipt.isFinance = entry.getUInt("isFinance");
+
+    //         ret[i] = receipt;
+    //     }
+    //     return ret;
+    // }
+
     function __getAllUnsettedReceipt(address addr, bool isFinance)
         private
-        returns (Receipt[] memory)
+        returns (int256[] memory)
     {
         findCompany(addr, isFinance);
 
@@ -423,27 +534,12 @@ contract Supply0 {
         Entries entries = t_receipt.select(toString(addr), cond);
 
         uint256 size = uint256(entries.size());
-        Receipt[] memory ret = new Receipt[](size);
+        int256[] memory ret = new int256[](size);
 
         Entry entry;
         for (uint256 i = 0; i < size; i++) {
             entry = entries.get(int256(i));
-            receipt.payeeAddr = entry.getAddress("payeeAddr");
-            receipt.payerAddr = entry.getAddress("payerAddr");
-            receipt.id = entry.getInt("id");
-            receipt.paidAmount = entry.getUInt("paidAmount");
-            receipt.oriAmount = entry.getUInt("oriAmount");
-            receipt.createTime = entry.getUInt("createTime");
-            receipt.deadline = entry.getUInt("deadline");
-            receipt.receiptStatus = entry.getUInt("receiptStatus");
-            receipt.bankSignature = entry.getString("bankSignature");
-            receipt.coreCompanySignature = entry.getString(
-                "coreCompanySignature"
-            );
-            receipt.info = entry.getString("info");
-            receipt.isFinance = entry.getUInt("isFinance");
-
-            ret[i] = receipt;
+            ret[i] = entry.getInt("id");
         }
         return ret;
     }
@@ -451,7 +547,7 @@ contract Supply0 {
     // 查询所有以某公司为收款方的未还清的交易账单
     function getAllUnsettedReceipt(address addr)
         public
-        returns (Receipt[] memory)
+        returns (int256[] memory)
     {
         return __getAllUnsettedReceipt(addr, false);
     }
@@ -459,7 +555,7 @@ contract Supply0 {
     // 查询所有以某银行为收款方的未还清贷款
     function getAllUnsettedFinance(address addr)
         public
-        returns (Receipt[] memory)
+        returns (int256[] memory)
     {
         return __getAllUnsettedReceipt(addr, true);
     }
@@ -493,8 +589,10 @@ contract Supply0 {
 
     function insertCertifier(address addr, string name) private {
         Table t_certifier = openTable(CertifierTable);
-        Entries entries =
-            t_certifier.select(toString(addr), t_certifier.newCondition());
+        Entries entries = t_certifier.select(
+            toString(addr),
+            t_certifier.newCondition()
+        );
         require(entries.size() == 0, "Certifier already exists.");
         Entry entry = t_certifier.newEntry();
         entry.set("name", name);
@@ -510,8 +608,10 @@ contract Supply0 {
 
     function findCertifier(address addr) private {
         Table t_certifier = openTable(CertifierTable);
-        Entries entries =
-            t_certifier.select(toString(addr), t_certifier.newCondition());
+        Entries entries = t_certifier.select(
+            toString(addr),
+            t_certifier.newCondition()
+        );
         require(entries.size() > 0, "Certifier should exist.");
         require(entries.size() < 2, "Certifier should be unique.");
         Entry entry = entries.get(0);
@@ -529,8 +629,10 @@ contract Supply0 {
         uint256 cashAmount
     ) private {
         Table t_company = openTable(CompanyTable);
-        Entries entries =
-            t_company.select(toString(addr), t_company.newCondition());
+        Entries entries = t_company.select(
+            toString(addr),
+            t_company.newCondition()
+        );
         require(entries.size() == 0, "Company or bank already exists.");
         Entry entry = t_company.newEntry();
         entry.set("name", name);
@@ -569,8 +671,10 @@ contract Supply0 {
         uint256 value
     ) private {
         Table t_company = openTable(CompanyTable);
-        Entries entries =
-            t_company.select(toString(addr), t_company.newCondition());
+        Entries entries = t_company.select(
+            toString(addr),
+            t_company.newCondition()
+        );
         require(entries.size() > 0, "Company or bank should exist.");
         require(entries.size() < 2, "Company or bank should be unique.");
         Entry entry = entries.get(0);
@@ -606,8 +710,10 @@ contract Supply0 {
         uint256 value_2
     ) private {
         Table t_company = openTable(CompanyTable);
-        Entries entries =
-            t_company.select(toString(addr), t_company.newCondition());
+        Entries entries = t_company.select(
+            toString(addr),
+            t_company.newCondition()
+        );
         require(entries.size() > 0, "Company should exist.");
         require(entries.size() < 2, "Company should be unique.");
         Entry entry = entries.get(0);

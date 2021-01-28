@@ -440,7 +440,7 @@ define({ "api": [
   },
   {
     "type": "get",
-    "url": "/banks/finances",
+    "url": "/banks/:address/finances",
     "title": "银行获取全部贷款请求",
     "group": "Bank",
     "success": {
@@ -536,12 +536,12 @@ define({ "api": [
     "version": "0.0.0",
     "filename": "src/controllers/bank.js",
     "groupTitle": "Bank",
-    "name": "GetBanksFinances"
+    "name": "GetBanksAddressFinances"
   },
   {
     "type": "get",
-    "url": "/banks/unsettledfinances",
-    "title": "银行获取全部贷款请求",
+    "url": "/banks/:address/unsettledfinances",
+    "title": "银行获取全部未结束的贷款请求",
     "group": "Bank",
     "success": {
       "fields": {
@@ -636,7 +636,7 @@ define({ "api": [
     "version": "0.0.0",
     "filename": "src/controllers/bank.js",
     "groupTitle": "Bank",
-    "name": "GetBanksUnsettledfinances"
+    "name": "GetBanksAddressUnsettledfinances"
   },
   {
     "type": "post",

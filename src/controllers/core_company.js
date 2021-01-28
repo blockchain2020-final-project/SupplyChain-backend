@@ -20,13 +20,27 @@ module.exports = {
   getAllCoreCompanies: async (ctx, next) => {
     let ca = await AccountServ.getContractAddress()
     const res = await call({
-      // TODO: finish the storage of contract
       contractAddress: ca,
       contractName: AccountServ.getContractName(),
       function: "getAllCoreCompany",
       parameters: []
     })
-    sendData(ctx, res.output.result, 'OK', '获取全部核心企业成功', 200)
+    addrs = res.output.result[0]
+    let i = 0
+    let ret = []
+    for (i = 0; i < addrs.length; i++) {
+      addr = addrs[i];
+      const temp = await call({
+        contractAddress: ca,
+        contractName: AccountServ.getContractName(),
+        function: "getCoreCompany",
+        parameters: [addr]
+      })
+      const bank = temp.output.result[0]
+      console.log(temp.output.result[0])
+      ret.push(bank)
+    }
+    sendData(ctx, ret, 'OK', '获取全部核心企业成功', 200)
   },
   /**
    * @api {get} /core_companies/:addr 根据地址获取核心企业
