@@ -699,7 +699,37 @@
     "name": "GetBanksAddressUnsettledfinances"
   },
   {
-    "type": "get",
+    "type": "post",
+    "url": "/banks/deposite",
+    "title": "银行给公司发钱",
+    "group": "Bank",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "companyAddr",
+            "description": "<p>公司地址</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "amount",
+            "description": "<p>钱数</p>"
+          }
+        ]
+      }
+    },
+    "version": "0.0.0",
+    "filename": "src/controllers/bank.js",
+    "groupTitle": "Bank",
+    "name": "PostBanksDeposite"
+  },
+  {
+    "type": "post",
     "url": "/banks/financerespond",
     "title": "银行响应公司的贷款",
     "group": "Bank",
@@ -740,37 +770,7 @@
     "version": "0.0.0",
     "filename": "src/controllers/bank.js",
     "groupTitle": "Bank",
-    "name": "GetBanksFinancerespond"
-  },
-  {
-    "type": "post",
-    "url": "/banks/deposite",
-    "title": "银行给公司发钱",
-    "group": "Bank",
-    "parameter": {
-      "fields": {
-        "Parameter": [
-          {
-            "group": "Parameter",
-            "type": "String",
-            "optional": false,
-            "field": "companyAddr",
-            "description": "<p>公司地址</p>"
-          },
-          {
-            "group": "Parameter",
-            "type": "String",
-            "optional": false,
-            "field": "amount",
-            "description": "<p>钱数</p>"
-          }
-        ]
-      }
-    },
-    "version": "0.0.0",
-    "filename": "src/controllers/bank.js",
-    "groupTitle": "Bank",
-    "name": "PostBanksDeposite"
+    "name": "PostBanksFinancerespond"
   },
   {
     "type": "post",
@@ -1017,63 +1017,6 @@
     "filename": "src/controllers/certifier.js",
     "groupTitle": "Certifier",
     "name": "GetCertifiersAddr"
-  },
-  {
-    "type": "post",
-    "url": "/certifiers/sendcredit",
-    "title": "监管机构发送信用点给核心企业",
-    "name": "监管机构发送信用点给核心企业",
-    "group": "Certifier",
-    "parameter": {
-      "fields": {
-        "Parameter": [
-          {
-            "group": "Parameter",
-            "type": "String",
-            "optional": false,
-            "field": "core_company_address",
-            "description": ""
-          },
-          {
-            "group": "Parameter",
-            "type": "Number",
-            "optional": false,
-            "field": "amount",
-            "description": "<p>要发放的信用点数量</p>"
-          }
-        ]
-      }
-    },
-    "success": {
-      "fields": {
-        "Success 200": [
-          {
-            "group": "Success 200",
-            "type": "Object",
-            "optional": false,
-            "field": "data",
-            "description": ""
-          },
-          {
-            "group": "Success 200",
-            "type": "String",
-            "optional": false,
-            "field": "msg",
-            "description": "<p>结果描述</p>"
-          },
-          {
-            "group": "Success 200",
-            "type": "Number",
-            "optional": false,
-            "field": "code",
-            "description": "<p>状态码</p>"
-          }
-        ]
-      }
-    },
-    "version": "0.0.0",
-    "filename": "src/controllers/certifier.js",
-    "groupTitle": "Certifier"
   },
   {
     "type": "post",
@@ -2075,7 +2018,7 @@
   {
     "type": "post",
     "url": "/companies",
-    "title": "注册普通企业, 如果已经存在，则注册为核心企业",
+    "title": "注册普通企业",
     "name": "企业注册(当前用户必须是监管机构)",
     "group": "Company",
     "parameter": {
