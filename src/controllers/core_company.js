@@ -63,11 +63,8 @@ module.exports = {
       function: "getCoreCompany",
       parameters: [addr]
     })
-    if (res.output != undefined && res.output.error != []) {
-      sendData(ctx, res.output.error, 'ERROR', '异常', 403)
-    } else {
-      sendData(ctx, res.output.result, 'OK', '根据地址获取企业信息成功', 200)
-    }
+    sendData(ctx, res.output.result, 'OK', '根据地址获取企业信息成功', 200)
+
   },
 
   /**
