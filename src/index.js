@@ -2,8 +2,13 @@ const Koa = require('koa')
 const bodyParser = require('koa-bodyparser')
 const { default: route } = require('./routers')
 const logger = require('./utils/logger')
+const cors = require('@koa/cors')
 const app = new Koa()
 
+app.use(cors({
+  origin: 'http://localhost:8080',    // 前端地址
+  credentials: true
+}));
 app.use(async (ctx, next) => {
   ctx.set('Access-Control-Allow-Origin', '*');
   ctx.set('Access-Control-Allow-Headers', 'Content-Type, Content-Length, Authorization, Accept, X-Requested-With , yourHeaderFeild');

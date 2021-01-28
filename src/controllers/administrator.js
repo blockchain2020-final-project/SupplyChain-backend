@@ -111,14 +111,9 @@ module.exports = {
     const res = await call({
       contractAddress: ca,
       contractName: AccountServ.getContractName(),
-      function: "queryAdminOutCredit",
-      parameters: []
+      function: "getAdmin",
+      parameters: [addr]
     })
-    sendData(ctx, [
-      {
-        addr: addr,
-        out_credit: res.output.result[0]
-      }
-    ], 'OK', "获取管理员信息成功", 200)
+    sendData(ctx, res.output.result, 'OK', "获取管理员信息成功", 200)
   }
 }

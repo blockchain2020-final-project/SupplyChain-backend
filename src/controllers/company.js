@@ -6,7 +6,7 @@ const { async } = require("rxjs");
 
 module.exports = {
   /**
-   * @api {post} /companies 注册普通企业
+   * @api {post} /companies 注册普通企业, 如果已经存在，则注册为核心企业
    * @apiName 企业注册(当前用户必须是监管机构)
    * @apiGroup Company
    * @apiParam {String} company_address
@@ -20,13 +20,22 @@ module.exports = {
     const addr = ctx.cookies.get('addr')
     let ca = await AccountServ.getContractAddress()
     const { company_address, company_name } = ctx.request.body
-    const res = await call({
+    let res = await call({
       // TODO: finish the storage of contract
       contractAddress: ca,
       contractName: AccountServ.getContractName(),
       function: "registerCompany",
       parameters: [addr, company_address, company_name]
     })
+    // 已经存在，则注册为核心企业
+    if (res.status != "0x0") {
+      res = await call({
+        contractAddress: ca,
+        contractName: AccountServ.getContractName(),
+        function: "registerCoreCompany",
+        parameters: [addr, company_address]
+      })
+    }
     sendData(ctx, res, 'OK', "注册企业成功", 200)
   },
 
@@ -43,14 +52,16 @@ module.exports = {
    * @apiSuccess {Object[]} data 数据
    */
   getAllCompanies: async (ctx, next) => {
+    let ca = await AccountServ.getContractAddress()
+
     const res = await call({
       // TODO: finish the storage of contract
-      contractAddress: AccountServ.getContractAddress(),
+      contractAddress: ca,
       contractName: AccountServ.getContractName(),
       function: "getAllNormalCompany",
       parameters: []
     })
-    sendData(ctx, res, 'OK', '获取全部普通企业成功', 200)
+    sendData(ctx, res.output, 'OK', '获取全部普通企业成功', 200)
   },
 
   /**
@@ -128,7 +139,7 @@ module.exports = {
       function: "",
       parameters: [addr]
     })
-    sendData(ctx, res, 'OK', '查询所有以某公司为收款方的未还清的交易账单成功', 200)
+    sendData(ctx, res.output.result, 'OK', '查询所有以某公司为收款方的未还清的交易账单成功', 200)
   },
 
   /** 
@@ -158,7 +169,7 @@ module.exports = {
       function: "getAllUnsettedReceipt",
       parameters: [addr]
     })
-    sendData(ctx, res, 'OK', '查询所有以某公司为收款方的未还清的交易账单成功', 200)
+    sendData(ctx, res.output.result, 'OK', '查询所有以某公司为收款方的未还清的交易账单成功', 200)
   },
 
   /**

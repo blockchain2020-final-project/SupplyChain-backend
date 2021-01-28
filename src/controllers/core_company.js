@@ -156,7 +156,6 @@ module.exports = {
   /**
    * @api {post} /core_companies/finances 发起贷款请求
    * @apiGroup CoreCompany
-   * @apiParam {String} payeeAddr
    * @apiParam {Number} amount
    * @apiParam {Number} deadline
    * @apiParam {Number} oriReceiptId
@@ -201,10 +200,10 @@ module.exports = {
     const res = await call({
       contractAddress: ca,
       contractName: AccountServ.getContractName(),
-      function: "getReceipts",
+      function: "getAllUnsettedReceipt",
       parameters: [addr]
     })
-    sendData(ctx, res, 'OK', '获取核心企业所有应收款账单成功', 200)
+    sendData(ctx, res.output.result, 'OK', '获取核心企业所有应收款账单成功', 200)
   }
 
 }

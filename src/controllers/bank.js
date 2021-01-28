@@ -35,7 +35,7 @@ module.exports = {
   /**
    * @api {post} /banks/sendcredit 银行发送信用点给核心企业
    * @apiGroup Bank
-   * @apiParam {String} bank_address  
+   * @apiParam {String} company_address  
    * @apiParam {Number} amount      要发放的信用点数量
    * @apiSuccess {String} msg 结果描述
    * @apiSuccess {Number} code 状态码
@@ -46,12 +46,12 @@ module.exports = {
     const type = ctx.cookies.get('type')
     const address = ctx.cookies.get('addr')
     let ca = await AccountServ.getContractAddress()
-    const { bank_address, amount } = ctx.request.body
+    const { company_address, amount } = ctx.request.body
     const res = await call({
       contractAddress: ca,
       contractName: AccountServ.getContractName(),
       function: "creditDistributionToCore",
-      parameters: [address, bank_address, amount]
+      parameters: [address, company_address, amount]
     })
     sendData(ctx, res, 'OK', "发放信用点成功", 200)
   },

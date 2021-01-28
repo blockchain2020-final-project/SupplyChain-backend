@@ -41,12 +41,12 @@ contract Supply0 {
     struct Transaction {
         address payeeAddr; // seller
         address payerAddr; // buyer
-        uint256 id;
+        int256 id;
         uint256 amount;
         uint256 createTime;
         uint256 deadline;
         uint256 tMode;
-        uint256 oriReceiptId;
+        int256 oriReceiptId;
         uint256 requestStatus;
         string info;
         uint256 isFinance;
@@ -55,7 +55,7 @@ contract Supply0 {
     struct Receipt {
         address payeeAddr; // payeeAddr
         address payerAddr; // payerAddr
-        uint256 id;
+        int256 id;
         uint256 paidAmount;
         uint256 oriAmount;
         uint256 createTime;
@@ -128,6 +128,7 @@ contract Supply0 {
         string payeeName,
         address payerAddr, // 付款人
         string payerName,
+        int256 id,
         uint256 amount,
         string rType
     );
@@ -136,34 +137,29 @@ contract Supply0 {
         string payeeName,
         address payerAddr, // 付款人
         string payerName,
+        int256 id,
         uint256 amount,
         uint256 respond,
         string rType
     );
     event NewTransaction(
         address payeeAddr, // 收款人
-        string payeeName,
         address payerAddr, // 付款人
-        string payerName,
-        uint256 id,
+        int256 id,
         uint256 amount,
         string tType
     );
     event NewReceipt(
         address payeeAddr, // 收款人
-        string payeeName,
         address payerAddr, // 付款人
-        string payerName,
-        uint256 id,
+        int256 id,
         uint256 oriAmount,
         string tType
     );
     event UpdateReceipt(
         address payeeAddr, // 收款人
-        string payeeName,
         address payerAddr, // 付款人
-        string payerName,
-        uint256 id,
+        int256 id,
         uint256 paidAmount,
         uint256 oriAmount,
         string tType
@@ -176,9 +172,8 @@ contract Supply0 {
     {
         bytes memory _baseBytes = bytes(_base);
         bytes memory _valueBytes = bytes(_value);
-        string memory _tmpValue = new string(
-            _baseBytes.length + _valueBytes.length
-        );
+        string memory _tmpValue =
+            new string(_baseBytes.length + _valueBytes.length);
         bytes memory _newValue = bytes(_tmpValue);
         uint256 i;
         uint256 j;
@@ -191,7 +186,7 @@ contract Supply0 {
         return string(_newValue);
     }
 
-    function toString(address x) public pure returns (string) {
+    function toString(address x) private pure returns (string) {
         bytes32 value = bytes32(uint256(x));
         bytes memory alphabet = "0123456789abcdef";
 
@@ -284,7 +279,8 @@ contract Supply0 {
             } else if (flag == 3 && isCTypeBank[addrs[i]]) {
                 findCompany(addrs[i], true);
             }
-            ret[cnt++] = company;
+            Company storage tmp = company;
+            ret[cnt++] = tmp;
         }
         return ret;
     }
@@ -378,12 +374,12 @@ contract Supply0 {
             entry = entries.get(int256(i));
             transaction.payeeAddr = entry.getAddress("payeeAddr");
             transaction.payerAddr = entry.getAddress("payerAddr");
-            transaction.id = entry.getUInt("id");
+            transaction.id = entry.getInt("id");
             transaction.amount = entry.getUInt("amount");
             transaction.createTime = entry.getUInt("createTime");
             transaction.deadline = entry.getUInt("deadline");
             transaction.tMode = entry.getUInt("tMode");
-            transaction.oriReceiptId = entry.getUInt("oriReceiptId");
+            transaction.oriReceiptId = entry.getInt("oriReceiptId");
             transaction.requestStatus = entry.getUInt("requestStatus");
             transaction.info = entry.getString("info");
             transaction.isFinance = entry.getUInt("isFinance");
@@ -434,7 +430,7 @@ contract Supply0 {
             entry = entries.get(int256(i));
             receipt.payeeAddr = entry.getAddress("payeeAddr");
             receipt.payerAddr = entry.getAddress("payerAddr");
-            receipt.id = entry.getUInt("id");
+            receipt.id = entry.getInt("id");
             receipt.paidAmount = entry.getUInt("paidAmount");
             receipt.oriAmount = entry.getUInt("oriAmount");
             receipt.createTime = entry.getUInt("createTime");
@@ -480,12 +476,12 @@ contract Supply0 {
     // }
 
     /** 查询管理员分发的credit总数 */
-    function queryAdminOutCredit() public view returns (uint256) {
+    function getAdminOutCredit() public view returns (uint256) {
         return admin.outCredit;
     }
 
     /** 查询管理员分给某一银行的credit总数 */
-    function queryAdminOutCredit2Bank(address bankAddr)
+    function getAdminOutCredit2Bank(address bankAddr)
         public
         view
         returns (uint256)
@@ -497,6 +493,9 @@ contract Supply0 {
 
     function insertCertifier(address addr, string name) private {
         Table t_certifier = openTable(CertifierTable);
+        Entries entries =
+            t_certifier.select(toString(addr), t_certifier.newCondition());
+        require(entries.size() == 0, "Certifier already exists.");
         Entry entry = t_certifier.newEntry();
         entry.set("name", name);
         t_certifier.insert(toString(addr), entry);
@@ -511,10 +510,8 @@ contract Supply0 {
 
     function findCertifier(address addr) private {
         Table t_certifier = openTable(CertifierTable);
-        Entries entries = t_certifier.select(
-            toString(addr),
-            t_certifier.newCondition()
-        );
+        Entries entries =
+            t_certifier.select(toString(addr), t_certifier.newCondition());
         require(entries.size() > 0, "Certifier should exist.");
         require(entries.size() < 2, "Certifier should be unique.");
         Entry entry = entries.get(0);
@@ -532,6 +529,9 @@ contract Supply0 {
         uint256 cashAmount
     ) private {
         Table t_company = openTable(CompanyTable);
+        Entries entries =
+            t_company.select(toString(addr), t_company.newCondition());
+        require(entries.size() == 0, "Company or bank already exists.");
         Entry entry = t_company.newEntry();
         entry.set("name", name);
         entry.set("cType", cType);
@@ -557,16 +557,20 @@ contract Supply0 {
         emit NewRegistration(addr, name, rType);
     }
 
+    function getCTypeString(uint256 cType) private returns (string) {
+        if (cType == cType_bank) return "Bank";
+        if (cType == cType_core) return "Company(Core)";
+        if (cType == cType_normal) return "Company(Normal)";
+    }
+
     function updateCompanyUInt1(
         address addr,
         string field,
         uint256 value
     ) private {
         Table t_company = openTable(CompanyTable);
-        Entries entries = t_company.select(
-            toString(addr),
-            t_company.newCondition()
-        );
+        Entries entries =
+            t_company.select(toString(addr), t_company.newCondition());
         require(entries.size() > 0, "Company or bank should exist.");
         require(entries.size() < 2, "Company or bank should be unique.");
         Entry entry = entries.get(0);
@@ -581,7 +585,7 @@ contract Supply0 {
             emit NewRegistration(
                 addr,
                 entry.getString("name"),
-                "Company(core)"
+                "Company(Core)"
             );
         } else {
             emit UpdateCompany(
@@ -589,7 +593,7 @@ contract Supply0 {
                 entry.getString("name"),
                 field,
                 value,
-                "Company"
+                getCTypeString(entry.getUInt("cType"))
             );
         }
     }
@@ -602,10 +606,8 @@ contract Supply0 {
         uint256 value_2
     ) private {
         Table t_company = openTable(CompanyTable);
-        Entries entries = t_company.select(
-            toString(addr),
-            t_company.newCondition()
-        );
+        Entries entries =
+            t_company.select(toString(addr), t_company.newCondition());
         require(entries.size() > 0, "Company should exist.");
         require(entries.size() < 2, "Company should be unique.");
         Entry entry = entries.get(0);
@@ -662,15 +664,20 @@ contract Supply0 {
 
     /***** handle transaction *****/
 
+    function getTTypeString(uint256 isFinance) private returns (string) {
+        if (isFinance == 1) return "Finance";
+        return "Transaction";
+    }
+
     function insertTransaction(
         address payeeAddr,
         address payerAddr,
-        uint256 id,
+        int256 id,
         uint256 amount,
         uint256 createTime,
         uint256 deadline,
         uint256 tMode,
-        uint256 oriReceiptId,
+        int256 oriReceiptId,
         uint256 requestStatus,
         string info,
         uint256 isFinance
@@ -688,12 +695,19 @@ contract Supply0 {
         entry.set("info", info);
         entry.set("isFinance", isFinance);
         t_transaction.insert(toString(payeeAddr), entry);
+        emit NewTransaction(
+            payeeAddr,
+            payerAddr,
+            id,
+            amount,
+            getTTypeString(isFinance)
+        );
     }
 
-    function findTransaction(string key, uint256 id) private {
+    function findTransaction(string key, int256 id) private {
         Table t_transaction = openTable(TransactionTable);
         Condition cond = t_transaction.newCondition();
-        cond.EQ("id", int256(id));
+        cond.EQ("id", id);
         Entries entries = t_transaction.select(key, cond);
         require(entries.size() > 0, "Transaction should exist.");
         require(entries.size() < 2, "Transaction should be unique.");
@@ -705,7 +719,7 @@ contract Supply0 {
         transaction.createTime = entry.getUInt("createTime");
         transaction.deadline = entry.getUInt("deadline");
         transaction.tMode = entry.getUInt("tMode");
-        transaction.oriReceiptId = entry.getUInt("oriReceiptId");
+        transaction.oriReceiptId = entry.getInt("oriReceiptId");
         transaction.requestStatus = entry.getUInt("requestStatus");
         transaction.info = entry.getString("info");
         transaction.isFinance = entry.getUInt("isFinance");
@@ -713,13 +727,13 @@ contract Supply0 {
 
     function updateTransactionUInt1(
         string key,
-        uint256 id,
+        int256 id,
         string field,
         uint256 value
     ) private {
         Table t_transaction = openTable(TransactionTable);
         Condition cond = t_transaction.newCondition();
-        cond.EQ("id", int256(id));
+        cond.EQ("id", id);
         Entries entries = t_transaction.select(key, cond);
         require(entries.size() > 0, "Transaction should exist.");
         require(entries.size() < 2, "Transaction should be unique.");
@@ -733,7 +747,7 @@ contract Supply0 {
     function insertReceipt(
         address payeeAddr,
         address payerAddr,
-        uint256 id,
+        int256 id,
         uint256 paidAmount,
         uint256 oriAmount,
         uint256 createTime,
@@ -759,19 +773,27 @@ contract Supply0 {
         entry.set("isFinance", isFinance);
         string memory key = toString(payeeAddr);
         t_receipt.insert(key, entry);
+
+        emit NewReceipt(
+            payeeAddr,
+            payerAddr,
+            id,
+            oriAmount,
+            getTTypeString(isFinance)
+        );
     }
 
-    function findReceipt(string key, uint256 id) private {
+    function findReceipt(string key, int256 id) private {
         Table t_receipt = openTable(ReceiptTable);
         Condition cond = t_receipt.newCondition();
-        cond.EQ("id", int256(id));
+        cond.EQ("id", id);
         Entries entries = t_receipt.select(key, cond);
         require(entries.size() > 0, "Receipt should exist.");
         require(entries.size() < 2, "Receipt should be unique.");
         Entry entry = entries.get(0);
         receipt.payeeAddr = entry.getAddress("payeeAddr");
         receipt.payerAddr = entry.getAddress("payerAddr");
-        receipt.id = entry.getUInt("id");
+        receipt.id = entry.getInt("id");
         receipt.paidAmount = entry.getUInt("paidAmount");
         receipt.oriAmount = entry.getUInt("oriAmount");
         receipt.createTime = entry.getUInt("createTime");
@@ -785,13 +807,13 @@ contract Supply0 {
 
     function updateReceiptUInt1(
         string key,
-        uint256 id,
+        int256 id,
         string field,
         uint256 value
     ) private {
         Table t_receipt = openTable(ReceiptTable);
         Condition cond = t_receipt.newCondition();
-        cond.EQ("id", int256(id));
+        cond.EQ("id", id);
         Entries entries = t_receipt.select(key, cond);
         require(entries.size() > 0, "Receipt should exist.");
         require(entries.size() < 2, "Receipt should be unique.");
@@ -801,6 +823,14 @@ contract Supply0 {
             entry.set("receiptStatus", ReceiptStatus_settled);
         }
         t_receipt.update(key, entry, cond);
+        emit UpdateReceipt(
+            entry.getAddress("payeeAddr"),
+            entry.getAddress("payerAddr"),
+            id,
+            entry.getUInt("paidAmount"),
+            entry.getUInt("oriAmount"),
+            getTTypeString(entry.getUInt("isFinance"))
+        );
     }
 
     /***** register *****/
@@ -963,7 +993,7 @@ contract Supply0 {
         updateCompanyUInt1(
             coreAddr,
             "creditAmount",
-            company.creditAmount + amount
+            company.creditAmount - amount
         );
     }
 
@@ -975,7 +1005,7 @@ contract Supply0 {
         uint256 amount,
         uint256 deadline,
         uint256 tMode,
-        uint256 oriReceiptId,
+        int256 oriReceiptId,
         string memory info,
         string memory tType
     ) private {
@@ -1015,7 +1045,7 @@ contract Supply0 {
             oriReceiptId = 0;
         }
 
-        uint256 transactionId = uint256(keccak256(abi.encodePacked(now)));
+        int256 transactionId = int256(keccak256(abi.encodePacked(now)));
         insertTransaction(
             payeeAddr,
             payerAddr,
@@ -1034,17 +1064,18 @@ contract Supply0 {
             company.name,
             payerAddr,
             payerName,
+            transactionId,
             amount,
             tType
         );
     }
 
     function _transactionRespond(
-        address payeeAddr,
+        address payeeAddr, // hub
         bool isPayeeBank,
-        address payerAddr,
+        address payerAddr, // bank
         bool isPayerBank,
-        uint256 transactionId,
+        int256 transactionId,
         uint256 respond,
         string memory tType
     ) private {
@@ -1055,7 +1086,7 @@ contract Supply0 {
 
         findTransaction(toString(payeeAddr), transactionId);
         uint256 amount = transaction.amount;
-        uint256 oriReceiptId = transaction.oriReceiptId;
+        int256 oriReceiptId = transaction.oriReceiptId;
 
         findCompany(payeeAddr, isPayeeBank);
         if (isPayeeBank == true) {
@@ -1079,6 +1110,8 @@ contract Supply0 {
                 "Payer doesn't has enough credit points."
             );
 
+            address newReceiptPayerAddr;
+            // address newReceiptPayeeAddr;
             if (transaction.tMode == TransactionMode_transfer) {
                 // split receipt
                 findReceipt(toString(payerAddr), oriReceiptId);
@@ -1092,6 +1125,10 @@ contract Supply0 {
                     "oriAmount",
                     receipt.oriAmount - amount
                 );
+                newReceiptPayerAddr = receipt.payerAddr;
+            } else {
+                // new receipt
+                newReceiptPayerAddr = payerAddr;
             }
             // payer
             findCompany(payerAddr, isPayerBank);
@@ -1130,10 +1167,10 @@ contract Supply0 {
                 );
             }
 
-            uint256 receiptId = uint256(keccak256(abi.encodePacked(now)));
+            int256 receiptId = int256(keccak256(abi.encodePacked(now)));
             insertReceipt(
                 payeeAddr,
-                payerAddr,
+                newReceiptPayerAddr,
                 receiptId,
                 0,
                 amount,
@@ -1157,6 +1194,7 @@ contract Supply0 {
             company.name,
             payerAddr,
             payerName,
+            transactionId,
             amount,
             respond,
             tType
@@ -1189,7 +1227,7 @@ contract Supply0 {
         address payeeAddr,
         uint256 amount,
         uint256 deadline,
-        uint256 oriReceiptId,
+        int256 oriReceiptId,
         string memory info
     ) public {
         _transactionRequest(
@@ -1211,7 +1249,7 @@ contract Supply0 {
         address payeeAddr,
         uint256 amount,
         uint256 deadline,
-        uint256 oriReceiptId,
+        int256 oriReceiptId,
         string memory info
     ) public {
         _transactionRequest(
@@ -1231,7 +1269,7 @@ contract Supply0 {
     function transactionRespond(
         address senderAddr,
         address payerAddr,
-        uint256 transactionId,
+        int256 transactionId,
         uint256 respond
     ) public {
         _transactionRespond(
@@ -1248,7 +1286,7 @@ contract Supply0 {
     function financeRespond(
         address senderAddr,
         address payerAddr,
-        uint256 financeId,
+        int256 financeId,
         uint256 respond
     ) public {
         _transactionRespond(
@@ -1262,43 +1300,50 @@ contract Supply0 {
         );
     }
 
+    /** admin才能同意bank存钱；bank才能同意company存钱 */
     function depositCash(
-        address senderAddr, // bankAddr
-        address companyAddr,
+        address senderAddr,
+        address addr,
         uint256 amount
     ) public {
-        findCompany(senderAddr, true);
-        findCompany(companyAddr, false);
-        updateCompanyUInt1(
-            companyAddr,
-            "cashAmount",
-            company.cashAmount + amount
-        );
+        if (isCTypeBank[addr] == true) {
+            require(
+                senderAddr == admin.addr,
+                "Only admin can deposit cash to bank."
+            );
+            findCompany(addr, true); // bank
+        } else {
+            findCompany(senderAddr, true); // bank
+            findCompany(addr, false); // company
+        }
+        updateCompanyUInt1(addr, "cashAmount", company.cashAmount + amount);
     }
 
+    /** admin才能同意bank取钱；bank才能同意company取钱 */
     function withdrawCash(
-        address senderAddr, // bankAddr
-        address companyAddr,
+        address senderAddr, // admin or bank
+        address addr, // bank or company
         uint256 amount
     ) public {
-        findCompany(senderAddr, true);
-        findCompany(companyAddr, false);
-        require(
-            company.cashAmount >= amount,
-            "Company doesn't have enough cash."
-        );
-        updateCompanyUInt1(
-            companyAddr,
-            "cashAmount",
-            company.cashAmount - amount
-        );
+        if (isCTypeBank[addr] == true) {
+            require(
+                senderAddr == admin.addr,
+                "Only admin can deposit cash to bank."
+            );
+            findCompany(addr, true); // bank
+        } else {
+            findCompany(senderAddr, true); // bank
+            findCompany(addr, false); // company
+        }
+        require(company.cashAmount >= amount, "Doesn't have enough cash.");
+        updateCompanyUInt1(addr, "cashAmount", company.cashAmount - amount);
     }
 
     function __payReceipt(
         address payerAddr,
         address payeeAddr,
         bool isPayeeBank,
-        uint256 receiptId,
+        int256 receiptId,
         uint256 amount
     ) private {
         findCompany(payerAddr, false);
@@ -1341,7 +1386,7 @@ contract Supply0 {
     function payReceipt(
         address senderAddr,
         address payeeAddr,
-        uint256 receiptId,
+        int256 receiptId,
         uint256 amount,
         bool isFinance
     ) public {
