@@ -67,7 +67,7 @@ module.exports = {
   },
 
   /**
-   * @api {get} /core_companies/:addr/transactions 获取某个核心企业为收款方的交易
+   * @api {get} /core_companies/:addr/transactions 获取所有以某个核心企业为收款方的交易请求
    * @apiGroup CoreCompany
  * @apiSuccess {Object[]} data 交易
  * @apiSuccess {Number} data.id
@@ -91,38 +91,23 @@ module.exports = {
       function: "getAllTransactionRequest",
       parameters: [addr]
     })
-    sendData(ctx, res.output.result, 'OK', '查询所有以某公司为收款方的交易成功', 200)
+    addrs = res.output.result[0]
+    let i = 0
+    let ret = []
+    for (i = 0; i < addrs.length; i++) {
+      let t = addrs[i];
+      const temp = await call({
+        contractAddress: ca,
+        contractName: AccountServ.getContractName(),
+        function: "getTransaction",
+        parameters: [addr, t]
+      })
+      const bank = temp.output.result[0]
+      console.log(temp.output.result[0])
+      ret.push(bank)
+    }
+    sendData(ctx, ret, 'OK', '查询所有以某公司为收款方的交易成功', 200)
   },
-
-  /**
-   * @api {get} /core_companies/:addr/finances 获取某个核心企业的全部贷款
-   * @apiGroup CoreCompany
- * @apiSuccess {Object[]} data 贷款
- * @apiSuccess {Number} data.id
- * @apiSuccess {String} data.payeeAddr  修改字段
- * @apiSuccess {String} data.payerAddr  修改字段
- * @apiSuccess {Number} data.amount
- * @apiSuccess {Number} data.createTime
- * @apiSuccess {Number} data.tMode 
- * @apiSuccess {String} data.oriReceiptId 
- * @apiSuccess {Number} data.requestStatus
- * @apiSuccess {String} data.info 新增字段
- * @apiSuccess {Number} data.isFinance 新增字段，判断是否为贷款
- * @apiSuccess {Number} code 状态码 200是成功
-   */
-  getCoreCompanyFinance: async (ctx, next) => {
-    const addr = ctx.params.address
-    let ca = await AccountServ.getContractAddress()
-    const res = await call({
-      contractAddress: ca,
-      contractName: AccountServ.getContractName(),
-      function: "",
-      parameters: [addr]
-    })
-    sendData(ctx, res, 'OK', '查询核心企业发起的所有贷款成功', 200)
-  },
-
-
 
   /**
    * @api {post} /core_companies/transactions_new 发起一笔交易, 创建新的应收款账单
@@ -142,7 +127,7 @@ module.exports = {
       function: "transactionRequestWithNewReceipt",
       parameters: [sender_address, payeeAddr, amount, deadline, info]
     })
-    if (res.output.error != [] && res.output.error != undefined) {
+    if (res.output != undefined && res.output.error != []) {
       sendData(ctx, res.output.error, 'ERROR', '异常', 403)
     } else {
       sendData(ctx, res, 'OK', '发起交易，创建新的应收账款单成功', 200)
@@ -168,7 +153,7 @@ module.exports = {
       function: "transactionRequestWithOldReceipt",
       parameters: [sender_address, payeeAddr, amount, deadline, oriReceiptId, info]
     })
-    if (res.output.error != [] && res.output.error != undefined) {
+    if (res.output != undefined && res.output.error != []) {
       sendData(ctx, res.output.error, 'ERROR', '异常', 403)
     } else {
       sendData(ctx, res, 'OK', '创建新的应收账款单成功', 200)
@@ -193,7 +178,7 @@ module.exports = {
       function: "financeRequest",
       parameters: [sender_address, payeeAddr, amount, deadline, oriReceiptId, info]
     })
-    if (res.output.error != [] && res.output.error != undefined) {
+    if (res.output != undefined && res.output.error != []) {
       sendData(ctx, res.output.error, 'ERROR', '异常', 403)
     } else {
       sendData(ctx, res, 'OK', '普通企业发起贷款请求成功', 200)
@@ -263,7 +248,7 @@ module.exports = {
   },
   /** 
    * @api {get} /core_companies/:addr/unsettledreceipts 获取某个普通企业为收款方的未还清的交易账单
-   * @apiGroup Company
+   * @apiGroup CoreCompany
    * @apiSuccess {Object[]} data 未还清的交易账单
    * @apiSuccess {Number} data.id
    * @apiSuccess {String} data.payeeAddr
@@ -309,7 +294,7 @@ module.exports = {
 
   /** 
    * @api {get} /core_companies/:addr/unpaidreceipts 获取某个普通企业为付款方的未还清的交易账单
-   * @apiGroup Company
+   * @apiGroup CoreCompany
    * @apiSuccess {Object[]} data 未还清的交易账单
    * @apiSuccess {Number} data.id
    * @apiSuccess {String} data.payeeAddr
@@ -371,7 +356,7 @@ module.exports = {
       function: "transactionRespond",
       parameters: [senderAddr, payerAddr, transactionId, respond]
     })
-    if (res.output.error != [] && res.output.error != undefined) {
+    if (res.output != undefined && res.output.error != []) {
       sendData(ctx, res.output.error, 'ERROR', '异常', 403)
     } else {
       sendData(ctx, res, 'OK', '核心企业响应某一笔交易请求成功', 200)
@@ -395,7 +380,7 @@ module.exports = {
       function: "payReceipt",
       parameters: [senderAddr, payerAddr, receiptId, amount, isFinance]
     })
-    if (res.output.error != [] && res.output.error != undefined) {
+    if (res.output != undefined && res.output.error != []) {
       sendData(ctx, res.output.error, 'ERROR', '异常', 403)
     } else {
       sendData(ctx, res, 'OK', '核心企业还某笔账单（应收款账单或者贷款）成功', 200)

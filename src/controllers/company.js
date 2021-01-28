@@ -27,7 +27,7 @@ module.exports = {
       function: "registerCompany",
       parameters: [addr, company_address, company_name]
     })
-    if (res.output.error != undefined && res.output.error != []) {
+    if (res.output != undefined && res.output.error != []) {
       sendData(ctx, res.output.error, 'ERROR', '注册企业异常', 403)
     } else {
       sendData(ctx, res, 'OK', "注册企业成功", 200)
@@ -136,7 +136,7 @@ module.exports = {
       console.log(temp.output.result[0])
       ret.push(bank)
     }
-    sendData(ctx, res.output.result, 'OK', '查询所有以某公司为收款方的未还清的交易账单成功', 200)
+    sendData(ctx, ret, 'OK', '查询所有以某公司为收款方的未还清的交易账单成功', 200)
   },
 
   /** 
@@ -249,7 +249,7 @@ module.exports = {
       function: "transactionRequestWithNewReceipt",
       parameters: [sender_address, payeeAddr, amount, deadline, info]
     })
-    if (res.output.error != [] && res.output.error != undefined) {
+    if (res.output != undefined && res.output.error != []) {
       sendData(ctx, res.output.error, 'ERROR', '异常', 403)
     } else {
       sendData(ctx, res, 'OK', '发起交易，创建新的应收账款单成功', 200)
@@ -275,7 +275,7 @@ module.exports = {
       function: "transactionRequestWithOldReceipt",
       parameters: [sender_address, payeeAddr, amount, deadline, oriReceiptId, info]
     })
-    if (res.output.error != [] && res.output.error != undefined) {
+    if (res.output != undefined && res.output.error != []) {
       sendData(ctx, res.output.error, 'ERROR', '异常', 403)
     } else {
       sendData(ctx, res, 'OK', '创建新的应收账款单成功', 200)
@@ -300,7 +300,7 @@ module.exports = {
       function: "financeRequest",
       parameters: [sender_address, payeeAddr, amount, deadline, oriReceiptId, info]
     })
-    if (res.output.error != [] && res.output.error != undefined) {
+    if (res.output != undefined && res.output.error != []) {
       sendData(ctx, res.output.error, 'ERROR', '异常', 403)
     } else {
       sendData(ctx, res, 'OK', '普通企业发起贷款请求成功', 200)
@@ -325,7 +325,7 @@ module.exports = {
       function: "transactionRespond",
       parameters: [senderAddr, payerAddr, transactionId, respond]
     })
-    if (res.output.error != [] && res.output.error != undefined) {
+    if (res.output != undefined && res.output.error != []) {
       sendData(ctx, res.output.error, 'ERROR', '异常', 403)
     } else {
       sendData(ctx, res, 'OK', '普通企业响应某一笔交易请求成功', 200)
@@ -349,7 +349,7 @@ module.exports = {
       function: "payReceipt",
       parameters: [senderAddr, payerAddr, receiptId, amount, isFinance]
     })
-    if (res.output.error != [] && res.output.error != undefined) {
+    if (res.output != undefined && res.output.error != []) {
       sendData(ctx, res.output.error, 'ERROR', '异常', 403)
     } else {
       sendData(ctx, res, 'OK', '普通企业还某笔账单（应收款账单或者贷款）成功', 200)

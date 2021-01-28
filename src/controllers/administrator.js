@@ -133,7 +133,7 @@ module.exports = {
       function: "depositCash",
       parameters: [addr, bankAddr, amount]
     })
-    if (res.output.error != undefined && res.output.error != []) {
+    if (res.output != undefined && res.output.error != []) {
       sendData(ctx, res.output.error, 'ERROR', '管理员给银行发钱异常', 403)
     } else {
       sendData(ctx, res, 'OK', '管理员给银行发钱成功', 200)
@@ -156,7 +156,7 @@ module.exports = {
       function: "withdrawCash",
       parameters: [addr, bankAddr, amount]
     })
-    if (res.output.error != undefined && res.output.error != []) {
+    if (res.output != undefined && res.output.error != []) {
       sendData(ctx, res.output.error, 'ERROR', '管理员给银行扣钱异常', 403)
     } else {
       sendData(ctx, res, 'OK', '管理员给银行扣钱成功', 200)

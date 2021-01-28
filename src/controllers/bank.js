@@ -224,7 +224,7 @@ module.exports = {
       function: "financeRespond",
       parameters: [senderAddr, payerAddr, financeId, respond]
     })
-    if (res.output.error != undefined && res.output.error != []) {
+    if (res.output != undefined && res.output.error != []) {
       sendData(ctx, res.output.error, 'ERROR', '银行响应公司的贷款失败', 403)
     } else {
       sendData(ctx, res, 'OK', '银行响应公司的贷款成功', 200)
@@ -247,7 +247,7 @@ module.exports = {
       function: "depositCash",
       parameters: [addr, companyAddr, amount]
     })
-    if (res.output.error != undefined && res.output.error != []) {
+    if (res.output != undefined && res.output.error != []) {
       sendData(ctx, res.output.error, 'ERROR', '银行给公司发钱异常', 403)
     } else {
       sendData(ctx, res, 'OK', '银行给公司发钱成功', 200)
@@ -270,7 +270,7 @@ module.exports = {
       function: "withdrawCash",
       parameters: [addr, companyAddr, amount]
     })
-    if (res.output.error != undefined && res.output.error != []) {
+    if (res.output != undefined && res.output.error != []) {
       sendData(ctx, res.output.error, 'ERROR', '银行给公司扣钱异常', 403)
     } else {
       sendData(ctx, res, 'OK', '银行给公司扣钱成功', 200)
