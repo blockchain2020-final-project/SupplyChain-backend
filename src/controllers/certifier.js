@@ -82,7 +82,7 @@ module.exports = {
       function: "getCertifier",
       parameters: [addr]
     })
-    sendData(ctx, res.output.result, 'OK', '根据地质获取监督机构成功', 200)
+    sendData(ctx, res.output.result, 'OK', '根据地址获取监督机构成功', 200)
   },
 
 }

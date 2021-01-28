@@ -181,7 +181,7 @@ module.exports = {
       console.log(temp.output.result[0])
       ret.push(bank)
     }
-    sendData(ctx, res.output.result, 'OK', '查询所有以某公司为收款方的未还清的交易账单成功', 200)
+    sendData(ctx, ret, 'OK', '查询所有以某公司为收款方的未还清的交易账单成功', 200)
   },
 
 
@@ -227,7 +227,7 @@ module.exports = {
       console.log(temp.output.result[0])
       ret.push(bank)
     }
-    sendData(ctx, res.output.result, 'OK', '查询所有以某公司为付款方的未还清的交易账单成功', 200)
+    sendData(ctx, ret, 'OK', '查询所有以某公司为付款方的未还清的交易账单成功', 200)
   },
 
 
@@ -354,7 +354,52 @@ module.exports = {
     } else {
       sendData(ctx, res, 'OK', '普通企业还某笔账单（应收款账单或者贷款）成功', 200)
     }
-  }
+  },
+
+  /** 
+     * @api {get} /companies/:addr/unpaidfinances 获取某个普通企业没有还的贷款
+     * @apiGroup Company
+     * @apiSuccess {Object[]} data 未还清的贷款
+     * @apiSuccess {Number} data.id
+     * @apiSuccess {String} data.payeeAddr
+     * @apiSuccess {String} data.payerAddr
+     * @apiSuccess {Number} data.paidAmount
+     * @apiSuccess {Number} data.oriAmount
+     * @apiSuccess {Number} data.createTime
+     * @apiSuccess {Number} data.deadline
+     * @apiSuccess {Number} data.receiptStatus
+     * @apiSuccess {String} data.bankSignature
+     * @apiSuccess {String} data.coreCompanySignature
+     * @apiSuccess {String} data.info
+     * @apiSuccess {Number} data.isFinance
+     * @apiSuccess {Number} code 状态码 200是成功
+    */
+  getAllUnpaidFinance: async (ctx, next) => {
+    const addr = ctx.params.address
+    let ca = await AccountServ.getContractAddress()
+    const res = await call({
+      contractAddress: ca,
+      contractName: AccountServ.getContractName(),
+      function: "getAllUnpaidFinance",
+      parameters: [addr]
+    })
+    addrs = res.output.result[0]
+    let i = 0
+    let ret = []
+    for (i = 0; i < addrs.length; i++) {
+      let t = addrs[i];
+      const temp = await call({
+        contractAddress: ca,
+        contractName: AccountServ.getContractName(),
+        function: "getReceipt",
+        parameters: [addr, t]
+      })
+      const bank = temp.output.result[0]
+      console.log(temp.output.result[0])
+      ret.push(bank)
+    }
+    sendData(ctx, ret, 'OK', ' 获取某个普通企业没有还的贷款成功', 200)
+  },
 
 
 }
