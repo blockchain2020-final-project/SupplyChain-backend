@@ -25,11 +25,12 @@ exports.default = function route (app) {
   });
   app.use(router.routes())
   router.use('/accounts', accounts)
-  router.use('/administrater', adminRtr)
+  router.use('/administrator', adminRtr)
   router.use('/banks', bankRtr)
   router.use('/certifiers', certRtr)
   router.use('/companies', companyRtr)
   router.use('/core_companies', coreCompanyRtr)
+
 
 
   router.use('/', info)

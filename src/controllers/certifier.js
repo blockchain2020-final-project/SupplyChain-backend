@@ -16,16 +16,15 @@ module.exports = {
    */
   createCertifier: async (ctx, next) => {
     const type = ctx.cookies.get('type')
+    const sender_address = ctx.cookies.get('addr')
     const { cert_address, cert_name } = ctx.request.body
-    if (type != "administrator") {
-      sendData(ctx, {}, 'UNAUTHORIZED', '您没有管理员权限', 403)
-    }
+    let ca = await AccountServ.getContractAddress()
     const res = await call({
       // TODO: finish the storage of contract
-      contractAddress: AccountServ.getContractAddress(),
+      contractAddress: ca,
       contractName: AccountServ.getContractName(),
       function: "registerCertifier",
-      parameters: [cert_address, cert_name]
+      parameters: [sender_address, cert_address, cert_name]
     })
     sendData(ctx, res, 'OK', "注册监督机构成功", 200)
   },
@@ -40,7 +39,15 @@ module.exports = {
    * @apiSuccess {Number} code 状态码 200是成功
    */
   getAllCertifiers: async (ctx, next) => {
-
+    let ca = await AccountServ.getContractAddress()
+    const res = await call({
+      // TODO: finish the storage of contract
+      contractAddress: ca,
+      contractName: AccountServ.getContractName(),
+      function: "getAllCertifier",
+      parameters: []
+    })
+    sendData(ctx, res, 'OK', '获取全部监督机构成功', 200)
   },
 
   /**
@@ -53,7 +60,15 @@ module.exports = {
    * @apiSuccess {Number} code 状态码 200是成功
    */
   getCertifierByAddress: async (ctx, next) => {
-
+    const addr = ctx.params.address
+    let ca = await AccountServ.getContractAddress()
+    const res = await call({
+      contractAddress: ca,
+      contractName: AccountServ.getContractName(),
+      function: "getCertifier",
+      parameters: [addr]
+    })
+    sendData(ctx, res.output.result, 'OK', '根据地质获取监督机构成功', 200)
   },
 
   /**

@@ -17,16 +17,15 @@ module.exports = {
    */
   createCompany: async (ctx, next) => {
     const type = ctx.cookies.get('type')
+    const addr = ctx.cookies.get('addr')
+    let ca = await AccountServ.getContractAddress()
     const { company_address, company_name } = ctx.request.body
-    if (type != "certifier") {
-      sendData(ctx, {}, 'UNAUTHORIZED', '您没有监管机构权限', 403)
-    }
     const res = await call({
       // TODO: finish the storage of contract
-      contractAddress: AccountServ.getContractAddress(),
+      contractAddress: ca,
       contractName: AccountServ.getContractName(),
       function: "registerCompany",
-      parameters: [company_address, company_name]
+      parameters: [addr, company_address, company_name]
     })
     sendData(ctx, res, 'OK', "注册企业成功", 200)
   },
@@ -44,7 +43,14 @@ module.exports = {
    * @apiSuccess {Object[]} data 数据
    */
   getAllCompanies: async (ctx, next) => {
-
+    const res = await call({
+      // TODO: finish the storage of contract
+      contractAddress: AccountServ.getContractAddress(),
+      contractName: AccountServ.getContractName(),
+      function: "getAllNormalCompany",
+      parameters: []
+    })
+    sendData(ctx, res, 'OK', '获取全部普通企业成功', 200)
   },
 
   /**
@@ -52,25 +58,23 @@ module.exports = {
  * @apiName 普通企业提升为核心企业
  * @apiGroup Company
  * @apiParam {String} company_address
- * @apiParam {String} company_name
  * @apiSuccess {String} msg 结果描述
  * @apiSuccess {Number} code 状态码 200是成功，403是无权限
  * @apiSuccess {Object[]} data 数据
  */
   registerCoreCompany: async (ctx, next) => {
     const type = ctx.cookies.get('type')
-    const { company_address, company_name } = ctx.request.body
-    if (type != "certifier") {
-      sendData(ctx, {}, 'UNAUTHORIZED', '您没有监管机构权限', 403)
-    }
+    let sender_address = ctx.cookies.get('addr')
+    let ca = await AccountServ.getContractAddress()
+    const { company_address } = ctx.request.body
     const res = await call({
       // TODO: finish the storage of contract
-      contractAddress: AccountServ.getContractAddress(),
+      contractAddress: ca,
       contractName: AccountServ.getContractName(),
       function: "registerCoreCompany",
-      parameters: [company_address, company_name]
+      parameters: [sender_address, company_address]
     })
-    sendData(ctx, res, 'OK', "注册企业成功", 200)
+    sendData(ctx, res, 'OK', "注册核心企业成功", 200)
   },
 
 
@@ -87,26 +91,165 @@ module.exports = {
    * @apiSuccess {Object[]} data 数据
    */
   getCompanyByAddress: async (ctx, next) => {
-
+    const addr = ctx.params.address
+    let ca = await AccountServ.getContractAddress()
+    const res = await call({
+      // TODO: finish the storage of contract
+      contractAddress: ca,
+      contractName: AccountServ.getContractName(),
+      function: "getNormalCompany",
+      parameters: [addr]
+    })
+    sendData(ctx, res.output.result, 'OK', '根据地址获取企业信息成功', 200)
   },
 
   /**
  * @api {get} /companies/:addr/transactions 获取某个普通企业的全部交易
  * @apiGroup Company
  * @apiSuccess {Object[]} data 交易
- * @apiSuccess {String} data.id
- * @apiSuccess {String} data.sellerAddr
- * @apiSuccess {String} data.buyerAddr
+ * @apiSuccess {Number} data.id
+ * @apiSuccess {String} data.payeeAddr  修改字段
+ * @apiSuccess {String} data.payerAddr  修改字段
  * @apiSuccess {Number} data.amount
  * @apiSuccess {Number} data.createTime
  * @apiSuccess {Number} data.tMode 交易模式
- * @apiSuccess {String} data.oriReceiptId  相关的贷款单？还不确定是不是这个意思
+ * @apiSuccess {String} data.oriReceiptId 
  * @apiSuccess {Number} data.requestStatus
+ * @apiSuccess {String} data.info 新增字段
+ * @apiSuccess {Number} data.isFinance 新增字段，判断是否为贷款
  * @apiSuccess {Number} code 状态码 200是成功
- * @apiSuccess {Object[]} data 数据
  */
   getCompanyTransactions: async (ctx, next) => {
+    const addr = ctx.params.address
+    let ca = await AccountServ.getContractAddress()
+    const res = await call({
+      contractAddress: ca,
+      contractName: AccountServ.getContractName(),
+      function: "",
+      parameters: [addr]
+    })
+    sendData(ctx, res, 'OK', '查询所有以某公司为收款方的未还清的交易账单成功', 200)
+  },
 
-  }
+  /** 
+   * @api {get} /companies/:addr/receipts 获取某个普通企业为收款方的未还清的交易账单
+   * @apiGroup Company
+   * @apiSuccess {Object[]} data 未还清的交易账单
+   * @apiSuccess {Number} data.id
+   * @apiSuccess {String} data.payeeAddr
+   * @apiSuccess {String} data.payerAddr
+   * @apiSuccess {Number} data.paidAmount
+   * @apiSuccess {Number} data.oriAmount
+   * @apiSuccess {Number} data.createTime
+   * @apiSuccess {Number} data.deadline
+   * @apiSuccess {Number} data.receiptStatus
+   * @apiSuccess {String} data.bankSignature
+   * @apiSuccess {String} data.coreCompanySignature
+   * @apiSuccess {String} data.info
+   * @apiSuccess {Number} data.isFinance
+   * @apiSuccess {Number} code 状态码 200是成功
+  */
+  getCompanyReceipts: async (ctx, next) => {
+    const addr = ctx.params.address
+    let ca = await AccountServ.getContractAddress()
+    const res = await call({
+      contractAddress: ca,
+      contractName: AccountServ.getContractName(),
+      function: "getAllUnsettedReceipt",
+      parameters: [addr]
+    })
+    sendData(ctx, res, 'OK', '查询所有以某公司为收款方的未还清的交易账单成功', 200)
+  },
 
+  /**
+   * @api {post} /companies/transactions_new 发起一笔交易, 创建新的应收款账单
+   * @apiGroup Company
+   * @apiParam {String} payeeAddr // 对方的地址
+   * @apiParam {Number} amount    
+   * @apiParam {Number} deadline
+   * @apiParam {String} info
+   */
+  transactionRequestWithNewReceipt: async (ctx, next) => {
+    const sender_address = ctx.cookies.get('addr')
+    let ca = await AccountServ.getContractAddress()
+    const { payeeAddr, amount, deadline, info } = ctx.request.body
+    const res = await call({
+      contractAddress: ca,
+      contractName: AccountServ.getContractName(),
+      function: "transactionRequestWithNewReceipt",
+      parameters: [sender_address, payeeAddr, amount, deadline, info]
+    })
+    sendData(ctx, res, 'OK', '发起交易，创建新的应收账款单成功', 200)
+  },
+
+  /**
+   * @api {post} /companies/transactions_old 发起一笔交易，使用已有的应收账款单
+   * @apiGroup Company
+   * @apiParam {String} payeeAddr
+   * @apiParam {Number} amount
+   * @apiParam {Number} deadline
+   * @apiParam {Number} oriReceiptId
+   * @apiParam {String} info
+   */
+  transactionRequestWithOldReceipt: async (ctx, next) => {
+    const sender_address = ctx.cookies.get('addr')
+    let ca = await AccountServ.getContractAddress()
+    const { payeeAddr, amount, deadline, info, oriReceiptId } = ctx.request.body
+    const res = await call({
+      contractAddress: ca,
+      contractName: AccountServ.getContractName(),
+      function: "transactionRequestWithOldReceipt",
+      parameters: [sender_address, payeeAddr, amount, deadline, oriReceiptId, info]
+    })
+    sendData(ctx, res, 'OK', '创建新的应收账款单成功', 200)
+  },
+  /**
+   * @api {post} /companies/finances 发起贷款请求
+   * @apiGroup Company
+   * @apiParam {String} payeeAddr
+   * @apiParam {Number} amount
+   * @apiParam {Number} deadline
+   * @apiParam {Number} oriReceiptId
+   * @apiParam {String} info
+   */
+  financeRequest: async (ctx, next) => {
+    const sender_address = ctx.cookies.get('addr')
+    let ca = await AccountServ.getContractAddress()
+    const { payeeAddr, amount, deadline, oriReceiptId, info } = ctx.request.body
+    const res = await call({
+      contractAddress: ca,
+      contractName: AccountServ.getContractName(),
+      function: "financeRequest",
+      parameters: [sender_address, payeeAddr, amount, deadline, oriReceiptId, info]
+    })
+    sendData(ctx, res, 'OK', '普通企业发起贷款请求成功', 200)
+
+  },
+  /**
+   * @api {get} /companies/:addr/finances 获取某个普通企业的全部贷款
+   * @apiGroup Company
+ * @apiSuccess {Object[]} data 贷款
+ * @apiSuccess {Number} data.id
+ * @apiSuccess {String} data.payeeAddr  修改字段
+ * @apiSuccess {String} data.payerAddr  修改字段
+ * @apiSuccess {Number} data.amount
+ * @apiSuccess {Number} data.createTime
+ * @apiSuccess {Number} data.tMode 
+ * @apiSuccess {String} data.oriReceiptId 
+ * @apiSuccess {Number} data.requestStatus
+ * @apiSuccess {String} data.info 新增字段
+ * @apiSuccess {Number} data.isFinance 新增字段，判断是否为贷款
+ * @apiSuccess {Number} code 状态码 200是成功
+   */
+  getCompanyFinance: async (ctx, next) => {
+    let ca = await AccountServ.getContractAddress()
+    const addr = ctx.params.address
+    const res = await call({
+      contractAddress: ca,
+      contractName: AccountServ.getContractName(),
+      function: "",
+      parameters: [addr]
+    })
+    sendData(ctx, res, 'OK', '查询普通企业发起的所有贷款成功', 200)
+  },
 }

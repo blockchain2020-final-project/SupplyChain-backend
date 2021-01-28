@@ -15,18 +15,17 @@ module.exports = {
      * @apiSuccess {Object[]} data 数据
      */
   createBank: async (ctx, next) => {
-    const address = ctx.cookies.get('address')
+    const address = ctx.cookies.get('addr')
     const type = ctx.cookies.get('type')
+    let ca = await AccountServ.getContractAddress()
     const { bank_address, bank_name } = ctx.request.body
-    if (type != "administrator") {
-      sendData(ctx, {}, 'UNAUTHORIZED', '您没有管理员权限', 403)
-    }
+    console.log([address, bank_address, bank_name])
     const res = await call({
       // TODO: finish the storage of contract
-      contractAddress: AccountServ.getContractAddress(),
+      contractAddress: ca,
       contractName: AccountServ.getContractName(),
       function: "registerBank",
-      parameters: [bank_address, bank_name]
+      parameters: [address, bank_address, bank_name]
     })
     sendData(ctx, res, 'OK', "注册银行成功", 200)
   },
@@ -45,15 +44,14 @@ module.exports = {
    */
   sendCreditToCoreCompany: async (ctx, next) => {
     const type = ctx.cookies.get('type')
-    if (type != "bank") {
-      sendData(ctx, {}, 'UNAUTHORIZED', '您没有银行权限', 403)
-    }
+    const address = ctx.cookies.get('addr')
+    let ca = await AccountServ.getContractAddress()
     const { bank_address, amount } = ctx.request.body
     const res = await call({
-      contractAddress: AccountServ.getContractAddress(),
+      contractAddress: ca,
       contractName: AccountServ.getContractName(),
       function: "creditDistributionToCore",
-      parameters: [bank_address, amount]
+      parameters: [address, bank_address, amount]
     })
     sendData(ctx, res, 'OK', "发放信用点成功", 200)
   },
@@ -70,7 +68,14 @@ module.exports = {
    * @apiSuccess {Number} data.outCredit 发放出去的总信用点
    */
   getAllBanks: async (ctx, next) => {
-
+    let ca = await AccountServ.getContractAddress()
+    const res = await call({
+      contractAddress: ca,
+      contractName: AccountServ.getContractName(),
+      function: "getAllBank",
+      parameters: []
+    })
+    sendData(ctx, res, 'OK', "获取全部银行成功", 200)
   },
 
   /**
@@ -85,7 +90,42 @@ module.exports = {
    * @apiSuccess {Number} data.outCredit 发放出去的总信用点
    */
   getBankByAddress: async (ctx, next) => {
-
+    const addr = ctx.params.address
+    let ca = await AccountServ.getContractAddress()
+    const res = await call({
+      contractAddress: ca,
+      contractName: AccountServ.getContractName(),
+      function: "getBank",
+      parameters: [addr]
+    })
+    sendData(ctx, res.output.result, 'OK', "根据地址获取银行成功", 200)
   },
+
+  /**
+   * @api {get} /banks/finances 银行获取全部贷款请求
+   * @apiGroup Bank
+ * @apiSuccess {Object[]} data 贷款
+ * @apiSuccess {Number} data.id
+ * @apiSuccess {String} data.payeeAddr  修改字段
+ * @apiSuccess {String} data.payerAddr  修改字段
+ * @apiSuccess {Number} data.amount
+ * @apiSuccess {Number} data.createTime
+ * @apiSuccess {Number} data.tMode 
+ * @apiSuccess {String} data.oriReceiptId 
+ * @apiSuccess {Number} data.requestStatus
+ * @apiSuccess {String} data.info 新增字段
+ * @apiSuccess {Number} data.isFinance 新增字段，判断是否为贷款
+ * @apiSuccess {Number} code 状态码 200是成功
+   */
+  getFinancesRequest: async (ctx, next) => {
+    let ca = await AccountServ.getContractAddress()
+    const res = await call({
+      contractAddress: ca,
+      contractName: AccountServ.getContractName(),
+      function: "getAllFinanceRequest",
+      parameters: []
+    })
+    sendData(ctx, res, 'OK', '获取所有贷款请求成功', 200)
+  }
 
 }

@@ -9,6 +9,7 @@ const { async } = require("rxjs");
 const path = require('path')
 const configFile = path.join(process.cwd(), 'src/packages/cli/conf/config.json');
 const config = new Configuration(configFile);
+const redis = require('../services/redis')
 
 var contractName = ""
 var contractAddress = ""
@@ -18,21 +19,24 @@ module.exports = {
     return config.accounts;
   },
   getContractName: () => {
-    // const data = fs.readFileSync(config.contractNameFile, 'utf8')
-    // return data
-    return contractName
+    // if (contractName == "") {
+
+    //   contractName = await redis.get("contractName")
+    // }
+    return "Supply0"
   },
-  getContractAddress: () => {
-    // const data = fs.readFileSync(config.contractAddressFile, 'utf8')
-    // return data
+  getContractAddress: async () => {
+    if (contractAddress == '') {
+      contractAddress = await redis.get("contractAddress")
+    }
     return contractAddress
   },
   saveContractName: (name) => {
-    fs.writeFileSync(config.contractNameFile, name)
+    redis.set('contractName', name)
     contractName = name
   },
   saveContractAddr: (addr) => {
-    fs.writeFileSync(config.contractAddressFile, addr)
+    redis.set('contractAddress', addr)
     contractAddress = addr
   }
 

@@ -2,6 +2,9 @@ const { sendData } = require("../utils");
 const { init } = require('../services/init')
 const { getAllAccounts } = require("../services/account");
 const { async } = require("rxjs");
+const AccountServ = require("../services/account")
+const { deploy, call, getAllContract } = require("../services/api");
+
 
 module.exports = {
   // getAccounts: async (ctx, next) => {
@@ -23,12 +26,20 @@ module.exports = {
    * @apiParam {String} addr 地址，一串哈希值，0x开头，总长度(包含0x)为42，例如(0x27a28f09ec7accce2eecc27ebcd9453226ed3e52)
    * @apiSuccess {String} msg 结果描述
    * @apiSuccess {Number} code 状态码
-   * @apiSuccess {Object[]} data
+   * @apiSuccess {String} data 用户的类型
    */
   login: async (ctx, next) => {
-    const { addr, type } = ctx.request.body
+    const { addr } = ctx.request.body
+    let ca = await AccountServ.getContractAddress()
+    const res = await call({
+      contractAddress: ca,
+      contractName: AccountServ.getContractName(),
+      function: "getAllRole",
+      parameters: [addr]
+    })
     ctx.cookies.set('addr', addr, { expires: new Date('2022-02-15') })
-    ctx.cookies.set('type', type, { expires: new Date('2022-02-15') })
-    return sendData(ctx, {}, 'OK', '登录成功', 200)
+
+    ctx.cookies.set('type', res, { expires: new Date('2022-02-15') })
+    return sendData(ctx, res.output.result[0], 'OK', '登录成功', 200)
   },
 }

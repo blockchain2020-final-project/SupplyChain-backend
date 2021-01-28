@@ -34,7 +34,20 @@ module.exports = {
    */
   // 获取当前管理员信息
   getAdmins: async (ctx, next) => {
-
+    const addr = ctx.cookies.get('addr')
+    let ca = await AccountServ.getContractAddress()
+    const res = await call({
+      contractAddress: ca,
+      contractName: AccountServ.getContractName(),
+      function: "queryAdminOutCredit",
+      parameters: []
+    })
+    sendData(ctx, [
+      {
+        addr: addr,
+        out_credit: res
+      }
+    ], 'OK', "获取管理员信息成功", 200)
   },
 
   /**
@@ -49,16 +62,15 @@ module.exports = {
    */
   // 发放信用点
   sendCreditPointToBank: async (ctx, next) => {
+    const sender_address = ctx.cookies.get('addr')
+    let ca = await AccountServ.getContractAddress()
     const type = ctx.cookies.get('type')
-    if (type != "administrator") {
-      sendData(ctx, {}, 'UNAUTHORIZED', '您没有管理员权限', 403)
-    }
     const { bank_address, amount } = ctx.request.body
     const res = await call({
-      contractAddress: AccountServ.getContractAddress(),
+      contractAddress: ca,
       contractName: AccountServ.getContractName(),
       function: "creditDistributionToBank",
-      parameters: [bank_address, amount]
+      parameters: [sender_address, bank_address, amount]
     })
     sendData(ctx, res, 'OK', "发放信用点成功", 200)
   },
@@ -72,18 +84,16 @@ module.exports = {
    * @apiSuccess {String} msg 结果描述
    * @apiSuccess {Number} code 状态码
    */
-  // 发放信用点
   recycleCreditFromBank: async (ctx, next) => {
+    const sender_address = ctx.cookies.get('addr')
+    let ca = await AccountServ.getContractAddress()
     const type = ctx.cookies.get('type')
-    if (type != "administrator") {
-      sendData(ctx, {}, 'UNAUTHORIZED', '您没有管理员权限', 403)
-    }
     const { bank_address, amount } = ctx.request.body
     const res = await call({
-      contractAddress: AccountServ.getContractAddress(),
+      contractAddress: ca,
       contractName: AccountServ.getContractName(),
       function: "creditReturnFromBank",
-      parameters: [bank_address, amount]
+      parameters: [sender_address, bank_address, amount]
     })
     sendData(ctx, res, 'OK', "回收信用点成功", 200)
   },
@@ -96,6 +106,19 @@ module.exports = {
    * @apiSuccess {Number} data.outCredit // 管理员发放的信用点
    */
   getAdministratorInfoByAddress: async (ctx, next) => {
-
+    const addr = ctx.params.address
+    let ca = await AccountServ.getContractAddress()
+    const res = await call({
+      contractAddress: ca,
+      contractName: AccountServ.getContractName(),
+      function: "queryAdminOutCredit",
+      parameters: []
+    })
+    sendData(ctx, [
+      {
+        addr: addr,
+        out_credit: res.output.result[0]
+      }
+    ], 'OK', "获取管理员信息成功", 200)
   }
 }

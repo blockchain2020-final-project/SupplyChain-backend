@@ -1,12 +1,16 @@
 const { async } = require("rxjs");
 const { deploy, call, getAllContract } = require("../services/api");
 const { sendData } = require("../utils");
+const AccountService = require('../services/account')
 
 
 module.exports = {
   deploy: async (ctx, next) => {
     const { contract, parameters } = ctx.request.body;
     let res = await deploy(contract, parameters)
+    console.log(res)
+    AccountService.saveContractName(contract)
+    AccountService.saveContractAddr(res.contractAddress)
     return sendData(ctx, res, 'OK', '部署成功', 200)
   },
 

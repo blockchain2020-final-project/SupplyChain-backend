@@ -138,8 +138,10 @@ module.exports = {
           transactionHash: result.transactionHash
         };
       }
+      let contractAddress = result.contractAddress;
       return {
         status: result.status,
+        contractAddress: result.contractAddress,
         transactionHash: result.transactionHash
       };
     });
