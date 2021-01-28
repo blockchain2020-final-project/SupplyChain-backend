@@ -9,11 +9,11 @@ module.exports = {
     * @api {get} /core_companies 获取全部核心企业
     * @apiGroup CoreCompany
     * @apiSuccess {Object[]} data  核心企业数组
-    * @apiSuccess {String} data.addr   企业地址
-    * @apiSuccess {String} data.name   企业名称
-    * @apiSuccess {Number} data.cType  企业类型
-    * @apiSuccess {Number} data.inCredit   该企业分配得到的信用点
-    * @apiSuccess {Number} data.outCredit  该企业发放的信用点
+   * @apiSuccess {String} data.addr 地址
+   * @apiSuccess {String} data.name 名字
+   * @apiSuccess {Number} data.creditAmount 信用点余额
+   * @apiSuccess {Number} data.cashAmount 现金余额
+   * @apiSuccess {Number} data.cType
     * @apiSuccess {Number} code 状态码
     *
     */
@@ -32,11 +32,11 @@ module.exports = {
    * @api {get} /core_companies/:addr 根据地址获取核心企业
    * @apiGroup CoreCompany
    * @apiSuccess {Object[]} data 核心企业数组，仅有一个元素
-   * @apiSuccess {String} data.addr   企业地址
-   * @apiSuccess {String} data.name   企业名称
-   * @apiSuccess {Number} data.cType  企业类型  
-   * @apiSuccess {Number} data.inCredit   该企业分配得到的信用点
-   * @apiSuccess {Number} data.outCredit  该企业发放的信用点
+   * @apiSuccess {String} data.addr 地址
+   * @apiSuccess {String} data.name 名字
+   * @apiSuccess {Number} data.creditAmount 信用点余额
+   * @apiSuccess {Number} data.cashAmount 现金余额
+   * @apiSuccess {Number} data.cType
    * @apiSuccess {Number} code 状态码
    */
   getCoreCompanyByAddress: async (ctx, next) => {
@@ -53,7 +53,7 @@ module.exports = {
   },
 
   /**
-   * @api {get} /core_companies/:addr/transactions 获取某个核心企业的全部交易
+   * @api {get} /core_companies/:addr/transactions 获取某个核心企业为收款方的交易
    * @apiGroup CoreCompany
  * @apiSuccess {Object[]} data 交易
  * @apiSuccess {Number} data.id
@@ -74,10 +74,10 @@ module.exports = {
     const res = await call({
       contractAddress: ca,
       contractName: AccountServ.getContractName(),
-      function: "",
+      function: "getAllTransactionRequest",
       parameters: [addr]
     })
-    sendData(ctx, res, 'OK', '查询所有以某公司为收款方的未还清的交易账单成功', 200)
+    sendData(ctx, res, 'OK', '查询所有以某公司为收款方的交易成功', 200)
   },
 
   /**
@@ -175,7 +175,7 @@ module.exports = {
   },
 
   /**
-   * @api {get} /core_companies/:addr/receipts 获取核心企业的相关应收账款单
+   * @api {get} /core_companies/:addr/receipts 获取核心企业为收款方的，没有还清的应收账款单
    * @apiGroup CoreCompany
    * @apiSuccess {String} msg 结果描述
    * @apiSuccess {Number} code 状态码

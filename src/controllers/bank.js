@@ -62,10 +62,11 @@ module.exports = {
    * @apiSuccess {String} msg 结果描述
    * @apiSuccess {Number} code 状态码
    * @apiSuccess {Object[]} data 银行数组，下面是每个银行包含的属性
-   * @apiSuccess {String} data.addr 银行地址
+   * @apiSuccess {String} data.addr 地址
    * @apiSuccess {String} data.name 名字
-   * @apiSuccess {Number} data.inCredit 得到的信用点数
-   * @apiSuccess {Number} data.outCredit 发放出去的总信用点
+   * @apiSuccess {Number} data.creditAmount 信用点余额
+   * @apiSuccess {Number} data.cashAmount 现金余额
+   * @apiSuccess {Number} data.cType
    */
   getAllBanks: async (ctx, next) => {
     let ca = await AccountServ.getContractAddress()

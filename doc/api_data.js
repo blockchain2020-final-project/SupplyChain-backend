@@ -335,7 +335,7 @@ define({ "api": [
             "type": "String",
             "optional": false,
             "field": "data.addr",
-            "description": "<p>银行地址</p>"
+            "description": "<p>地址</p>"
           },
           {
             "group": "Success 200",
@@ -348,15 +348,22 @@ define({ "api": [
             "group": "Success 200",
             "type": "Number",
             "optional": false,
-            "field": "data.inCredit",
-            "description": "<p>得到的信用点数</p>"
+            "field": "data.creditAmount",
+            "description": "<p>信用点余额</p>"
           },
           {
             "group": "Success 200",
             "type": "Number",
             "optional": false,
-            "field": "data.outCredit",
-            "description": "<p>发放出去的总信用点</p>"
+            "field": "data.cashAmount",
+            "description": "<p>现金余额</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "Number",
+            "optional": false,
+            "field": "data.cType",
+            "description": ""
           }
         ]
       }
@@ -543,7 +550,7 @@ define({ "api": [
             "group": "Parameter",
             "type": "String",
             "optional": false,
-            "field": "bank_address",
+            "field": "company_address",
             "description": ""
           },
           {
@@ -881,34 +888,34 @@ define({ "api": [
             "type": "String",
             "optional": false,
             "field": "data.addr",
-            "description": ""
+            "description": "<p>地址</p>"
           },
           {
             "group": "Success 200",
             "type": "String",
             "optional": false,
             "field": "data.name",
-            "description": ""
+            "description": "<p>名字</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "Number",
+            "optional": false,
+            "field": "data.creditAmount",
+            "description": "<p>信用点余额</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "Number",
+            "optional": false,
+            "field": "data.cashAmount",
+            "description": "<p>现金余额</p>"
           },
           {
             "group": "Success 200",
             "type": "Number",
             "optional": false,
             "field": "data.cType",
-            "description": ""
-          },
-          {
-            "group": "Success 200",
-            "type": "Number",
-            "optional": false,
-            "field": "data.inCredit",
-            "description": ""
-          },
-          {
-            "group": "Success 200",
-            "type": "Number",
-            "optional": false,
-            "field": "data.outCredit",
             "description": ""
           },
           {
@@ -946,34 +953,34 @@ define({ "api": [
             "type": "String",
             "optional": false,
             "field": "data.addr",
-            "description": ""
+            "description": "<p>地址</p>"
           },
           {
             "group": "Success 200",
             "type": "String",
             "optional": false,
             "field": "data.name",
-            "description": ""
+            "description": "<p>名字</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "Number",
+            "optional": false,
+            "field": "data.creditAmount",
+            "description": "<p>信用点余额</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "Number",
+            "optional": false,
+            "field": "data.cashAmount",
+            "description": "<p>现金余额</p>"
           },
           {
             "group": "Success 200",
             "type": "Number",
             "optional": false,
             "field": "data.cType",
-            "description": ""
-          },
-          {
-            "group": "Success 200",
-            "type": "Number",
-            "optional": false,
-            "field": "data.inCredit",
-            "description": ""
-          },
-          {
-            "group": "Success 200",
-            "type": "Number",
-            "optional": false,
-            "field": "data.outCredit",
             "description": ""
           },
           {
@@ -990,106 +997,6 @@ define({ "api": [
     "filename": "src/controllers/company.js",
     "groupTitle": "Company",
     "name": "GetCompaniesAddr"
-  },
-  {
-    "type": "get",
-    "url": "/companies/:addr/finances",
-    "title": "获取某个普通企业的全部贷款",
-    "group": "Company",
-    "success": {
-      "fields": {
-        "Success 200": [
-          {
-            "group": "Success 200",
-            "type": "Object[]",
-            "optional": false,
-            "field": "data",
-            "description": "<p>贷款</p>"
-          },
-          {
-            "group": "Success 200",
-            "type": "Number",
-            "optional": false,
-            "field": "data.id",
-            "description": ""
-          },
-          {
-            "group": "Success 200",
-            "type": "String",
-            "optional": false,
-            "field": "data.payeeAddr",
-            "description": "<p>修改字段</p>"
-          },
-          {
-            "group": "Success 200",
-            "type": "String",
-            "optional": false,
-            "field": "data.payerAddr",
-            "description": "<p>修改字段</p>"
-          },
-          {
-            "group": "Success 200",
-            "type": "Number",
-            "optional": false,
-            "field": "data.amount",
-            "description": ""
-          },
-          {
-            "group": "Success 200",
-            "type": "Number",
-            "optional": false,
-            "field": "data.createTime",
-            "description": ""
-          },
-          {
-            "group": "Success 200",
-            "type": "Number",
-            "optional": false,
-            "field": "data.tMode",
-            "description": ""
-          },
-          {
-            "group": "Success 200",
-            "type": "String",
-            "optional": false,
-            "field": "data.oriReceiptId",
-            "description": ""
-          },
-          {
-            "group": "Success 200",
-            "type": "Number",
-            "optional": false,
-            "field": "data.requestStatus",
-            "description": ""
-          },
-          {
-            "group": "Success 200",
-            "type": "String",
-            "optional": false,
-            "field": "data.info",
-            "description": "<p>新增字段</p>"
-          },
-          {
-            "group": "Success 200",
-            "type": "Number",
-            "optional": false,
-            "field": "data.isFinance",
-            "description": "<p>新增字段，判断是否为贷款</p>"
-          },
-          {
-            "group": "Success 200",
-            "type": "Number",
-            "optional": false,
-            "field": "code",
-            "description": "<p>状态码 200是成功</p>"
-          }
-        ]
-      }
-    },
-    "version": "0.0.0",
-    "filename": "src/controllers/company.js",
-    "groupTitle": "Company",
-    "name": "GetCompaniesAddrFinances"
   },
   {
     "type": "get",
@@ -1208,7 +1115,7 @@ define({ "api": [
   {
     "type": "get",
     "url": "/companies/:addr/transactions",
-    "title": "获取某个普通企业的全部交易",
+    "title": "获取某个普通企业作为收款方的全部交易",
     "group": "Company",
     "success": {
       "fields": {
@@ -1454,7 +1361,7 @@ define({ "api": [
   {
     "type": "post",
     "url": "/companies",
-    "title": "注册普通企业",
+    "title": "注册普通企业, 如果已经存在，则注册为核心企业",
     "name": "企业注册(当前用户必须是监管机构)",
     "group": "Company",
     "parameter": {
@@ -1472,56 +1379,6 @@ define({ "api": [
             "type": "String",
             "optional": false,
             "field": "company_name",
-            "description": ""
-          }
-        ]
-      }
-    },
-    "success": {
-      "fields": {
-        "Success 200": [
-          {
-            "group": "Success 200",
-            "type": "String",
-            "optional": false,
-            "field": "msg",
-            "description": "<p>结果描述</p>"
-          },
-          {
-            "group": "Success 200",
-            "type": "Number",
-            "optional": false,
-            "field": "code",
-            "description": "<p>状态码 200是成功，403是无权限</p>"
-          },
-          {
-            "group": "Success 200",
-            "type": "Object[]",
-            "optional": false,
-            "field": "data",
-            "description": "<p>数据</p>"
-          }
-        ]
-      }
-    },
-    "version": "0.0.0",
-    "filename": "src/controllers/company.js",
-    "groupTitle": "Company"
-  },
-  {
-    "type": "patch",
-    "url": "/companies",
-    "title": "注册核心企业",
-    "name": "普通企业提升为核心企业",
-    "group": "Company",
-    "parameter": {
-      "fields": {
-        "Parameter": [
-          {
-            "group": "Parameter",
-            "type": "String",
-            "optional": false,
-            "field": "company_address",
             "description": ""
           }
         ]
@@ -1578,35 +1435,35 @@ define({ "api": [
             "type": "String",
             "optional": false,
             "field": "data.addr",
-            "description": "<p>企业地址</p>"
+            "description": "<p>地址</p>"
           },
           {
             "group": "Success 200",
             "type": "String",
             "optional": false,
             "field": "data.name",
-            "description": "<p>企业名称</p>"
+            "description": "<p>名字</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "Number",
+            "optional": false,
+            "field": "data.creditAmount",
+            "description": "<p>信用点余额</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "Number",
+            "optional": false,
+            "field": "data.cashAmount",
+            "description": "<p>现金余额</p>"
           },
           {
             "group": "Success 200",
             "type": "Number",
             "optional": false,
             "field": "data.cType",
-            "description": "<p>企业类型</p>"
-          },
-          {
-            "group": "Success 200",
-            "type": "Number",
-            "optional": false,
-            "field": "data.inCredit",
-            "description": "<p>该企业分配得到的信用点</p>"
-          },
-          {
-            "group": "Success 200",
-            "type": "Number",
-            "optional": false,
-            "field": "data.outCredit",
-            "description": "<p>该企业发放的信用点</p>"
+            "description": ""
           },
           {
             "group": "Success 200",
@@ -1643,35 +1500,35 @@ define({ "api": [
             "type": "String",
             "optional": false,
             "field": "data.addr",
-            "description": "<p>企业地址</p>"
+            "description": "<p>地址</p>"
           },
           {
             "group": "Success 200",
             "type": "String",
             "optional": false,
             "field": "data.name",
-            "description": "<p>企业名称</p>"
+            "description": "<p>名字</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "Number",
+            "optional": false,
+            "field": "data.creditAmount",
+            "description": "<p>信用点余额</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "Number",
+            "optional": false,
+            "field": "data.cashAmount",
+            "description": "<p>现金余额</p>"
           },
           {
             "group": "Success 200",
             "type": "Number",
             "optional": false,
             "field": "data.cType",
-            "description": "<p>企业类型</p>"
-          },
-          {
-            "group": "Success 200",
-            "type": "Number",
-            "optional": false,
-            "field": "data.inCredit",
-            "description": "<p>该企业分配得到的信用点</p>"
-          },
-          {
-            "group": "Success 200",
-            "type": "Number",
-            "optional": false,
-            "field": "data.outCredit",
-            "description": "<p>该企业发放的信用点</p>"
+            "description": ""
           },
           {
             "group": "Success 200",
@@ -1791,7 +1648,7 @@ define({ "api": [
   {
     "type": "get",
     "url": "/core_companies/:addr/receipts",
-    "title": "获取核心企业的相关应收账款单",
+    "title": "获取核心企业为收款方的，没有还清的应收账款单",
     "group": "CoreCompany",
     "success": {
       "fields": {
@@ -1912,7 +1769,7 @@ define({ "api": [
   {
     "type": "get",
     "url": "/core_companies/:addr/transactions",
-    "title": "获取某个核心企业的全部交易",
+    "title": "获取某个核心企业为收款方的交易",
     "group": "CoreCompany",
     "success": {
       "fields": {
@@ -2017,13 +1874,6 @@ define({ "api": [
     "parameter": {
       "fields": {
         "Parameter": [
-          {
-            "group": "Parameter",
-            "type": "String",
-            "optional": false,
-            "field": "payeeAddr",
-            "description": ""
-          },
           {
             "group": "Parameter",
             "type": "Number",
@@ -2154,5 +2004,62 @@ define({ "api": [
     "filename": "src/controllers/core_company.js",
     "groupTitle": "CoreCompany",
     "name": "PostCore_companiesTransactions_old"
+  },
+  {
+    "type": "post",
+    "url": "/core_companies",
+    "title": "注册核心企业",
+    "name": "普通企业提升为核心企业",
+    "group": "CoreCompany",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "company_address",
+            "description": ""
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "company_name",
+            "description": ""
+          }
+        ]
+      }
+    },
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "type": "String",
+            "optional": false,
+            "field": "msg",
+            "description": "<p>结果描述</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "Number",
+            "optional": false,
+            "field": "code",
+            "description": "<p>状态码 200是成功，403是无权限</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "Object[]",
+            "optional": false,
+            "field": "data",
+            "description": "<p>数据</p>"
+          }
+        ]
+      }
+    },
+    "version": "0.0.0",
+    "filename": "src/controllers/core_company.js",
+    "groupTitle": "CoreCompany"
   }
 ] });

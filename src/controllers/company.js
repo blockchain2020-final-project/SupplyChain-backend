@@ -34,11 +34,11 @@ module.exports = {
    * @api {get} /companies 获取全部普通企业
    * @apiGroup Company
    * @apiSuccess {Object[]} data
-   * @apiSuccess {String} data.addr
-   * @apiSuccess {String} data.name
+   * @apiSuccess {String} data.addr 地址
+   * @apiSuccess {String} data.name 名字
+   * @apiSuccess {Number} data.creditAmount 信用点余额
+   * @apiSuccess {Number} data.cashAmount 现金余额
    * @apiSuccess {Number} data.cType
-   * @apiSuccess {Number} data.inCredit
-   * @apiSuccess {Number} data.outCredit
    * @apiSuccess {Number} code 状态码 200是成功
    * @apiSuccess {Object[]} data 数据
    */
@@ -62,11 +62,11 @@ module.exports = {
    * @api {get} /companies/:addr 根据地址获取普通企业
    * @apiGroup Company
    * @apiSuccess {Object[]} data
-   * @apiSuccess {String} data.addr
-   * @apiSuccess {String} data.name
+   * @apiSuccess {String} data.addr 地址
+   * @apiSuccess {String} data.name 名字
+   * @apiSuccess {Number} data.creditAmount 信用点余额
+   * @apiSuccess {Number} data.cashAmount 现金余额
    * @apiSuccess {Number} data.cType
-   * @apiSuccess {Number} data.inCredit
-   * @apiSuccess {Number} data.outCredit
    * @apiSuccess {Number} code 状态码 200是成功
    * @apiSuccess {Object[]} data 数据
    */
@@ -84,7 +84,7 @@ module.exports = {
   },
 
   /**
- * @api {get} /companies/:addr/transactions 获取某个普通企业的全部交易
+ * @api {get} /companies/:addr/transactions 获取某个普通企业作为收款方的全部交易
  * @apiGroup Company
  * @apiSuccess {Object[]} data 交易
  * @apiSuccess {Number} data.id
@@ -105,7 +105,7 @@ module.exports = {
     const res = await call({
       contractAddress: ca,
       contractName: AccountServ.getContractName(),
-      function: "",
+      function: "getAllTransactionRequest",
       parameters: [addr]
     })
     sendData(ctx, res.output.result, 'OK', '查询所有以某公司为收款方的未还清的交易账单成功', 200)
@@ -159,7 +159,11 @@ module.exports = {
       function: "transactionRequestWithNewReceipt",
       parameters: [sender_address, payeeAddr, amount, deadline, info]
     })
-    sendData(ctx, res, 'OK', '发起交易，创建新的应收账款单成功', 200)
+    if (res.output.error != [] && res.output.error != undefined) {
+      sendData(ctx, res.output.error, 'ERROR', '异常', 403)
+    } else {
+      sendData(ctx, res, 'OK', '发起交易，创建新的应收账款单成功', 200)
+    }
   },
 
   /**
@@ -181,7 +185,11 @@ module.exports = {
       function: "transactionRequestWithOldReceipt",
       parameters: [sender_address, payeeAddr, amount, deadline, oriReceiptId, info]
     })
-    sendData(ctx, res, 'OK', '创建新的应收账款单成功', 200)
+    if (res.output.error != [] && res.output.error != undefined) {
+      sendData(ctx, res.output.error, 'ERROR', '异常', 403)
+    } else {
+      sendData(ctx, res, 'OK', '创建新的应收账款单成功', 200)
+    }
   },
   /**
    * @api {post} /companies/finances 发起贷款请求
@@ -202,34 +210,10 @@ module.exports = {
       function: "financeRequest",
       parameters: [sender_address, payeeAddr, amount, deadline, oriReceiptId, info]
     })
-    sendData(ctx, res, 'OK', '普通企业发起贷款请求成功', 200)
-
-  },
-  /**
-   * @api {get} /companies/:addr/finances 获取某个普通企业的全部贷款
-   * @apiGroup Company
- * @apiSuccess {Object[]} data 贷款
- * @apiSuccess {Number} data.id
- * @apiSuccess {String} data.payeeAddr  修改字段
- * @apiSuccess {String} data.payerAddr  修改字段
- * @apiSuccess {Number} data.amount
- * @apiSuccess {Number} data.createTime
- * @apiSuccess {Number} data.tMode 
- * @apiSuccess {String} data.oriReceiptId 
- * @apiSuccess {Number} data.requestStatus
- * @apiSuccess {String} data.info 新增字段
- * @apiSuccess {Number} data.isFinance 新增字段，判断是否为贷款
- * @apiSuccess {Number} code 状态码 200是成功
-   */
-  getCompanyFinance: async (ctx, next) => {
-    let ca = await AccountServ.getContractAddress()
-    const addr = ctx.params.address
-    const res = await call({
-      contractAddress: ca,
-      contractName: AccountServ.getContractName(),
-      function: "",
-      parameters: [addr]
-    })
-    sendData(ctx, res, 'OK', '查询普通企业发起的所有贷款成功', 200)
+    if (res.output.error != [] && res.output.error != undefined) {
+      sendData(ctx, res.output.error, 'ERROR', '异常', 403)
+    } else {
+      sendData(ctx, res, 'OK', '普通企业发起贷款请求成功', 200)
+    }
   },
 }
