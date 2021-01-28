@@ -37,9 +37,12 @@ module.exports = {
       function: "getAllRole",
       parameters: [addr]
     })
-    ctx.cookies.set('addr', addr, { expires: new Date('2022-02-15') })
-
-    ctx.cookies.set('type', res, { expires: new Date('2022-02-15') })
-    return sendData(ctx, res.output.result[0], 'OK', '登录成功', 200)
+    if (res.output.result[0] == '') {
+      sendData(ctx, '', 'ERROR', '登录失败，该地址不存在', 403)
+    } else {
+      ctx.cookies.set('addr', addr, { expires: new Date('2022-02-15') })
+      ctx.cookies.set('type', res, { expires: new Date('2022-02-15') })
+      return sendData(ctx, res.output.result[0], 'OK', '登录成功', 200)
+    }
   },
 }

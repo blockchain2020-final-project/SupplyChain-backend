@@ -26,7 +26,7 @@ module.exports = {
       function: "getAllCoreCompany",
       parameters: []
     })
-    sendData(ctx, res, 'OK', '获取全部核心企业成功', 200)
+    sendData(ctx, res.output.result, 'OK', '获取全部核心企业成功', 200)
   },
   /**
    * @api {get} /core_companies/:addr 根据地址获取核心企业
@@ -77,7 +77,7 @@ module.exports = {
       function: "getAllTransactionRequest",
       parameters: [addr]
     })
-    sendData(ctx, res, 'OK', '查询所有以某公司为收款方的交易成功', 200)
+    sendData(ctx, res.output.result, 'OK', '查询所有以某公司为收款方的交易成功', 200)
   },
 
   /**
@@ -128,7 +128,11 @@ module.exports = {
       function: "transactionRequestWithNewReceipt",
       parameters: [sender_address, payeeAddr, amount, deadline, info]
     })
-    sendData(ctx, res, 'OK', '发起交易，创建新的应收账款单成功', 200)
+    if (res.output.error != [] && res.output.error != undefined) {
+      sendData(ctx, res.output.error, 'ERROR', '异常', 403)
+    } else {
+      sendData(ctx, res, 'OK', '发起交易，创建新的应收账款单成功', 200)
+    }
   },
 
   /**
@@ -150,7 +154,11 @@ module.exports = {
       function: "transactionRequestWithOldReceipt",
       parameters: [sender_address, payeeAddr, amount, deadline, oriReceiptId, info]
     })
-    sendData(ctx, res, 'OK', '创建新的应收账款单成功', 200)
+    if (res.output.error != [] && res.output.error != undefined) {
+      sendData(ctx, res.output.error, 'ERROR', '异常', 403)
+    } else {
+      sendData(ctx, res, 'OK', '创建新的应收账款单成功', 200)
+    }
   },
 
   /**
@@ -171,7 +179,11 @@ module.exports = {
       function: "financeRequest",
       parameters: [sender_address, payeeAddr, amount, deadline, oriReceiptId, info]
     })
-    sendData(ctx, res, 'OK', '普通企业发起贷款请求成功', 200)
+    if (res.output.error != [] && res.output.error != undefined) {
+      sendData(ctx, res.output.error, 'ERROR', '异常', 403)
+    } else {
+      sendData(ctx, res, 'OK', '普通企业发起贷款请求成功', 200)
+    }
   },
 
   /**

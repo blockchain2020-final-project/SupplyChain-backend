@@ -131,6 +131,33 @@ module.exports = {
       parameters: []
     })
     sendData(ctx, res.output.result, 'OK', '获取所有贷款请求成功', 200)
+  },
+
+  /**
+ * @api {get} /banks/unsettledfinances 银行获取全部贷款请求
+ * @apiGroup Bank
+* @apiSuccess {Object[]} data 贷款
+* @apiSuccess {Number} data.id
+* @apiSuccess {String} data.payeeAddr  修改字段
+* @apiSuccess {String} data.payerAddr  修改字段
+* @apiSuccess {Number} data.amount
+* @apiSuccess {Number} data.createTime
+* @apiSuccess {Number} data.tMode 
+* @apiSuccess {String} data.oriReceiptId 
+* @apiSuccess {Number} data.requestStatus
+* @apiSuccess {String} data.info 新增字段
+* @apiSuccess {Number} data.isFinance 新增字段，判断是否为贷款
+* @apiSuccess {Number} code 状态码 200是成功
+ */
+  getFinancesRequest: async (ctx, next) => {
+    let ca = await AccountServ.getContractAddress()
+    const res = await call({
+      contractAddress: ca,
+      contractName: AccountServ.getContractName(),
+      function: "getAllUnsettledFinanceRequest",
+      parameters: []
+    })
+    sendData(ctx, res.output.result, 'OK', '获取所有贷款请求成功', 200)
   }
 
 }
