@@ -27,15 +27,6 @@ module.exports = {
       function: "registerCompany",
       parameters: [addr, company_address, company_name]
     })
-    // 已经存在，则注册为核心企业
-    if (res.status != "0x0") {
-      res = await call({
-        contractAddress: ca,
-        contractName: AccountServ.getContractName(),
-        function: "registerCoreCompany",
-        parameters: [addr, company_address]
-      })
-    }
     sendData(ctx, res, 'OK', "注册企业成功", 200)
   },
 
@@ -61,34 +52,12 @@ module.exports = {
       function: "getAllNormalCompany",
       parameters: []
     })
-    sendData(ctx, res.output, 'OK', '获取全部普通企业成功', 200)
+    let ret = []
+    if (res.output != 'undefine') {
+      ret = res.output.result
+    }
+    sendData(ctx, ret, 'OK', '获取全部普通企业成功', 200)
   },
-
-  /**
- * @api {patch} /companies 注册核心企业
- * @apiName 普通企业提升为核心企业
- * @apiGroup Company
- * @apiParam {String} company_address
- * @apiSuccess {String} msg 结果描述
- * @apiSuccess {Number} code 状态码 200是成功，403是无权限
- * @apiSuccess {Object[]} data 数据
- */
-  registerCoreCompany: async (ctx, next) => {
-    const type = ctx.cookies.get('type')
-    let sender_address = ctx.cookies.get('addr')
-    let ca = await AccountServ.getContractAddress()
-    const { company_address } = ctx.request.body
-    const res = await call({
-      // TODO: finish the storage of contract
-      contractAddress: ca,
-      contractName: AccountServ.getContractName(),
-      function: "registerCoreCompany",
-      parameters: [sender_address, company_address]
-    })
-    sendData(ctx, res, 'OK', "注册核心企业成功", 200)
-  },
-
-
   /**
    * @api {get} /companies/:addr 根据地址获取普通企业
    * @apiGroup Company

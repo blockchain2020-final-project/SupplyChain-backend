@@ -5,10 +5,10 @@ const logger = require('./utils/logger')
 const cors = require('@koa/cors')
 const app = new Koa()
 
-app.use(cors({
-  origin: 'http://localhost:8080',    // 前端地址
-  credentials: true
-}));
+// app.use(cors({
+//   origin: 'http://localhost:8080',    // 前端地址
+//   credentials: true
+// }));
 app.use(cors({
   origin: function () {
     return 'http://localhost:8080';

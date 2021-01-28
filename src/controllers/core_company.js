@@ -204,6 +204,36 @@ module.exports = {
       parameters: [addr]
     })
     sendData(ctx, res.output.result, 'OK', '获取核心企业所有应收款账单成功', 200)
-  }
+  },
+  /**
+* @api {post} /core_companies 注册核心企业
+* @apiName 普通企业提升为核心企业
+* @apiGroup CoreCompany
+* @apiParam {String} company_address
+* @apiParam {String} company_name
+* @apiSuccess {String} msg 结果描述
+* @apiSuccess {Number} code 状态码 200是成功，403是无权限
+* @apiSuccess {Object[]} data 数据
+*/
+  registerCoreCompany: async (ctx, next) => {
+    const type = ctx.cookies.get('type')
+    let sender_address = ctx.cookies.get('addr')
+    let ca = await AccountServ.getContractAddress()
+    const { company_address, company_name } = ctx.request.body
+    let res = await call({
+      contractAddress: ca,
+      contractName: AccountServ.getContractName(),
+      function: "registerCompany",
+      parameters: [sender_address, company_address, company_name]
+    })
+    res = await call({
+      // TODO: finish the storage of contract
+      contractAddress: ca,
+      contractName: AccountServ.getContractName(),
+      function: "registerCoreCompany",
+      parameters: [sender_address, company_address]
+    })
+    sendData(ctx, res, 'OK', "注册核心企业成功", 200)
+  },
 
 }

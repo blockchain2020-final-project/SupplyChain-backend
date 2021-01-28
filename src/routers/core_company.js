@@ -5,6 +5,7 @@ const router = new Router();
 module.exports = exportRtr(router)
 
 router.route('').get(CoreCompanyCtrl.getAllCoreCompanies)
+router.route('').post(CoreCompanyCtrl.registerCoreCompany)
 router.route('/:address').get(CoreCompanyCtrl.getCoreCompanyByAddress)
 router.route('/:address/receipts').get(CoreCompanyCtrl.getCoreCompanysReceipts)
 router.route('/:address/transactions').get(CoreCompanyCtrl.getCoreCompanyTransaction)

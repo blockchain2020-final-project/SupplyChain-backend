@@ -75,7 +75,11 @@ module.exports = {
       function: "getAllBank",
       parameters: []
     })
-    sendData(ctx, res, 'OK', "获取全部银行成功", 200)
+    let ret = []
+    if (res.output != 'undefine') {
+      ret = res.output.result
+    }
+    sendData(ctx, ret, 'OK', "获取全部银行成功", 200)
   },
 
   /**
@@ -125,7 +129,7 @@ module.exports = {
       function: "getAllFinanceRequest",
       parameters: []
     })
-    sendData(ctx, res, 'OK', '获取所有贷款请求成功', 200)
+    sendData(ctx, res.output.result, 'OK', '获取所有贷款请求成功', 200)
   }
 
 }
