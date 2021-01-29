@@ -136,7 +136,7 @@ module.exports = {
       console.log(temp.output.result[0])
       ret.push(bank)
     }
-    sendData(ctx, ret, 'OK', '查询所有以某公司为收款方的未还清的交易账单成功', 200)
+    sendData(ctx, ret, 'OK', '查询所有以普通公司为收款方的交易请求成功', 200)
   },
 
   /** 
