@@ -170,16 +170,23 @@ module.exports = {
       function: "getAllUnsettedReceipt",
       parameters: [addr]
     })
+    if (res.output == undefined) {
+      sendData(ctx, [], 'OK', '查询所有以某公司为收款方的未还清的交易账单成功', 200)
+      return
+    }
     addrs = res.output.result[0]
+    let addrs = res.output.result[0]
+    let ids = res.output.result[1]
     let i = 0
     let ret = []
     for (i = 0; i < addrs.length; i++) {
       let t = addrs[i];
+      let id = ids[i]
       const temp = await call({
         contractAddress: ca,
         contractName: AccountServ.getContractName(),
         function: "getReceipt",
-        parameters: [addr, t]
+        parameters: [t, id]
       })
       const bank = temp.output.result[0]
       console.log(temp.output.result[0])
@@ -395,16 +402,23 @@ module.exports = {
       function: "getAllUnpaidFinance",
       parameters: [addr]
     })
-    addrs = res.output.result[0]
+    if (res.output == undefined) {
+      sendData(ctx, [], 'OK', '获取某个普通企业没有还的贷款成功', 200)
+      return
+    }
+    let addrs = res.output.result[0]
+    let ids = res.output.result[1]
     let i = 0
     let ret = []
+    console.log(addrs)
     for (i = 0; i < addrs.length; i++) {
       let t = addrs[i];
+      let id = ids[i]
       const temp = await call({
         contractAddress: ca,
         contractName: AccountServ.getContractName(),
         function: "getReceipt",
-        parameters: [addr, t]
+        parameters: [t, id]
       })
       const bank = temp.output.result[0]
       console.log(temp.output.result[0])
