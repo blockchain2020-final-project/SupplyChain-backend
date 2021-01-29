@@ -115,17 +115,21 @@ module.exports = {
   getCompanyTransactions: async (ctx, next) => {
     const addr = ctx.params.address
     let ca = await AccountServ.getContractAddress()
+    console.log(addr)
     const res = await call({
       contractAddress: ca,
       contractName: AccountServ.getContractName(),
       function: "getAllTransactionRequest",
       parameters: [addr]
     })
+    console.log(res)
     addrs = res.output.result[0]
     let i = 0
     let ret = []
     for (i = 0; i < addrs.length; i++) {
       let t = addrs[i];
+      console.log([addr, t])
+      console.log([addr, t])
       const temp = await call({
         contractAddress: ca,
         contractName: AccountServ.getContractName(),
@@ -325,6 +329,7 @@ module.exports = {
       function: "transactionRespond",
       parameters: [senderAddr, payerAddr, transactionId, respond]
     })
+
     if (res.output != undefined && res.output.error != []) {
       sendData(ctx, res.output.error, 'ERROR', '异常', 403)
     } else {

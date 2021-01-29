@@ -4,7 +4,7 @@ pragma experimental ABIEncoderV2;
 import "./Table.sol";
 
 contract Supply0 {
-    /** Table don't accept enum type. Use int256 instead */
+    /** Table don't accept enum type. Use int32 instead */
 
     // enum CompanyType {core, normal}
     // enum RequestStatus {sent, accepted, refused}
@@ -41,12 +41,12 @@ contract Supply0 {
     struct Transaction {
         address payeeAddr; // seller
         address payerAddr; // buyer
-        int256 id;
+        int32 id;
         uint256 amount;
         uint256 createTime;
         uint256 deadline;
         uint256 tMode;
-        int256 oriReceiptId;
+        int32 oriReceiptId;
         uint256 requestStatus;
         string info;
         uint256 isFinance;
@@ -55,7 +55,7 @@ contract Supply0 {
     struct Receipt {
         address payeeAddr; // payeeAddr
         address payerAddr; // payerAddr
-        int256 id;
+        int32 id;
         uint256 paidAmount;
         uint256 oriAmount;
         uint256 createTime;
@@ -129,7 +129,7 @@ contract Supply0 {
         string payeeName,
         address payerAddr, // 付款人
         string payerName,
-        int256 id,
+        int32 id,
         uint256 amount,
         string rType
     );
@@ -138,7 +138,7 @@ contract Supply0 {
         string payeeName,
         address payerAddr, // 付款人
         string payerName,
-        int256 id,
+        int32 id,
         uint256 amount,
         uint256 respond,
         string rType
@@ -146,21 +146,21 @@ contract Supply0 {
     event NewTransaction(
         address payeeAddr, // 收款人
         address payerAddr, // 付款人
-        int256 id,
+        int32 id,
         uint256 amount,
         string tType
     );
     event NewReceipt(
         address payeeAddr, // 收款人
         address payerAddr, // 付款人
-        int256 id,
+        int32 id,
         uint256 oriAmount,
         string tType
     );
     event UpdateReceipt(
         address payeeAddr, // 收款人
         address payerAddr, // 付款人
-        int256 id,
+        int32 id,
         uint256 paidAmount,
         uint256 oriAmount,
         string tType
@@ -397,7 +397,7 @@ contract Supply0 {
         return company;
     }
 
-    function getTransaction(address payeeAddr, int256 id)
+    function getTransaction(address payeeAddr, int32 id)
         public
         returns (Transaction memory)
     {
@@ -405,7 +405,39 @@ contract Supply0 {
         return transaction;
     }
 
-    function getReceipt(address payeeAddr, int256 id)
+    function getTransaction_test(address payeeAddr, int32 id)
+        public
+        returns (
+            address,
+            address,
+            int32,
+            uint256,
+            uint256,
+            uint256,
+            uint256,
+            int32,
+            uint256,
+            string,
+            uint256
+        )
+    {
+        findTransaction(toString(payeeAddr), id);
+        return (
+            transaction.payeeAddr,
+            transaction.payerAddr,
+            transaction.id,
+            transaction.amount,
+            transaction.createTime,
+            transaction.deadline,
+            transaction.tMode,
+            transaction.oriReceiptId,
+            transaction.requestStatus,
+            transaction.info,
+            transaction.isFinance
+        );
+    }
+
+    function getReceipt(address payeeAddr, int32 id)
         public
         returns (Receipt memory)
     {
@@ -424,7 +456,7 @@ contract Supply0 {
     //     Transaction[] memory ret = new Transaction[](size);
     //     Entry entry;
     //     for (uint256 i = 0; i < size; i++) {
-    //         entry = entries.get(int256(i));
+    //         entry = entries.get(int32(i));
     //         transaction.payeeAddr = entry.getAddress("payeeAddr");
     //         transaction.payerAddr = entry.getAddress("payerAddr");
     //         transaction.id = entry.getInt("id");
@@ -443,17 +475,17 @@ contract Supply0 {
 
     function __getAllTransactionRequest(address addr)
         private
-        returns (int256[] memory)
+        returns (int32[] memory)
     {
         Table t_transaction = openTable(TransactionTable);
         Condition cond = t_transaction.newCondition();
         Entries entries = t_transaction.select(toString(addr), cond);
         uint256 size = uint256(entries.size());
-        int256[] memory ret = new int256[](size);
+        int32[] memory ret = new int32[](size);
         Entry entry;
         for (uint256 i = 0; i < size; i++) {
-            entry = entries.get(int256(i));
-            ret[i] = entry.getInt("id");
+            entry = entries.get(int32(i));
+            ret[i] = int32(entry.getInt("id"));
         }
         return ret;
     }
@@ -461,7 +493,7 @@ contract Supply0 {
     // 查询某公司为收款方的所有交易(即该公司为交易请求的接收者)
     function getAllTransactionRequest(address addr)
         public
-        returns (int256[] memory)
+        returns (int32[] memory)
     {
         findCompany(addr, false);
         return __getAllTransactionRequest(addr);
@@ -470,7 +502,7 @@ contract Supply0 {
     // 查询某银行为收款方的所有贷款(即该银行为贷款请求的接收者)
     function getAllFinanceRequest(address addr)
         public
-        returns (int256[] memory)
+        returns (int32[] memory)
     {
         findCompany(addr, true);
         return __getAllTransactionRequest(addr);
@@ -489,7 +521,7 @@ contract Supply0 {
     //     } else {
     //         cond.EQ("isFinance", 0);
     //     }
-    //     cond.EQ("receiptStatus", int256(ReceiptStatus_paying));
+    //     cond.EQ("receiptStatus", int32(ReceiptStatus_paying));
     //     Entries entries = t_receipt.select(toString(addr), cond);
 
     //     uint256 size = uint256(entries.size());
@@ -497,7 +529,7 @@ contract Supply0 {
 
     //     Entry entry;
     //     for (uint256 i = 0; i < size; i++) {
-    //         entry = entries.get(int256(i));
+    //         entry = entries.get(int32(i));
     //         receipt.payeeAddr = entry.getAddress("payeeAddr");
     //         receipt.payerAddr = entry.getAddress("payerAddr");
     //         receipt.id = entry.getInt("id");
@@ -520,7 +552,7 @@ contract Supply0 {
 
     function __getAllUnsettedReceipt(address addr, bool isFinance)
         private
-        returns (int256[] memory)
+        returns (int32[] memory)
     {
         findCompany(addr, isFinance);
 
@@ -531,16 +563,16 @@ contract Supply0 {
         } else {
             cond.EQ("isFinance", 0);
         }
-        cond.EQ("receiptStatus", int256(ReceiptStatus_paying));
+        cond.EQ("receiptStatus", int32(ReceiptStatus_paying));
         Entries entries = t_receipt.select(toString(addr), cond);
 
         uint256 size = uint256(entries.size());
-        int256[] memory ret = new int256[](size);
+        int32[] memory ret = new int32[](size);
 
         Entry entry;
         for (uint256 i = 0; i < size; i++) {
-            entry = entries.get(int256(i));
-            ret[i] = entry.getInt("id");
+            entry = entries.get(int32(i));
+            ret[i] = int32(entry.getInt("id"));
         }
         return ret;
     }
@@ -548,7 +580,7 @@ contract Supply0 {
     // 查询所有以某公司为收款方的未还清的交易账单
     function getAllUnsettedReceipt(address addr)
         public
-        returns (int256[] memory)
+        returns (int32[] memory)
     {
         return __getAllUnsettedReceipt(addr, false);
     }
@@ -556,14 +588,14 @@ contract Supply0 {
     // 查询所有以某银行为收款方的未还清贷款
     function getAllUnsettedFinance(address addr)
         public
-        returns (int256[] memory)
+        returns (int32[] memory)
     {
         return __getAllUnsettedReceipt(addr, true);
     }
 
     function __getAllUnpaidReceipt(address addr, bool isFinance)
         private
-        returns (address[] memory, int256[] memory)
+        returns (address[] memory, int32[] memory)
     {
         findCompany(addr, false);
 
@@ -574,20 +606,20 @@ contract Supply0 {
         } else {
             cond.EQ("isFinance", 0);
         }
-        cond.EQ("receiptStatus", int256(ReceiptStatus_paying));
+        cond.EQ("receiptStatus", int32(ReceiptStatus_paying));
 
         Entries entries;
         Entry entry;
         uint256 size = unPaidReceiptCount[addr];
         uint256 cnt = 0;
 
-        int256[] memory ids = new int256[](size);
+        int32[] memory ids = new int32[](size);
         address[] memory payeeAddrs = new address[](size);
         for (uint256 i = 0; i < addrCount; i++) {
             entries = t_receipt.select(toString(addrs[i]), cond);
             for (uint256 j = 0; j < uint256(entries.size()); j++) {
-                entry = entries.get(int256(j));
-                ids[cnt] = entry.getInt("id");
+                entry = entries.get(int32(j));
+                ids[cnt] = int32(entry.getInt("id"));
                 payeeAddrs[cnt] = entry.getAddress("payeeAddr");
                 cnt += 1;
             }
@@ -599,7 +631,7 @@ contract Supply0 {
     // 查询所有以某公司为付款方的未还清的交易账单
     function getAllUnpaidReceipt(address addr)
         public
-        returns (address[] memory, int256[] memory)
+        returns (address[] memory, int32[] memory)
     {
         return __getAllUnpaidReceipt(addr, false);
     }
@@ -607,7 +639,7 @@ contract Supply0 {
     // 查询所有以某公司为付款方的未还清贷款
     function getAllUnpaidFinance(address addr)
         public
-        returns (address[] memory, int256[] memory)
+        returns (address[] memory, int32[] memory)
     {
         return __getAllUnpaidReceipt(addr, true);
     }
@@ -787,9 +819,9 @@ contract Supply0 {
         Table t_company = openTable(CompanyTable);
         Condition cond = t_company.newCondition();
         if (isBank == true) {
-            cond.EQ("cType", int256(cType_bank));
+            cond.EQ("cType", int32(cType_bank));
         } else {
-            cond.NE("cType", int256(cType_bank));
+            cond.NE("cType", int32(cType_bank));
         }
         Entries entries = t_company.select(toString(addr), cond);
         // emit find_debug(CompanyTable, addr, entries.size());
@@ -830,12 +862,12 @@ contract Supply0 {
     function insertTransaction(
         address payeeAddr,
         address payerAddr,
-        int256 id,
+        int32 id,
         uint256 amount,
         uint256 createTime,
         uint256 deadline,
         uint256 tMode,
-        int256 oriReceiptId,
+        int32 oriReceiptId,
         uint256 requestStatus,
         string info,
         uint256 isFinance
@@ -862,7 +894,7 @@ contract Supply0 {
         );
     }
 
-    function findTransaction(string key, int256 id) private {
+    function findTransaction(string key, int32 id) private {
         Table t_transaction = openTable(TransactionTable);
         Condition cond = t_transaction.newCondition();
         cond.EQ("id", id);
@@ -877,7 +909,7 @@ contract Supply0 {
         transaction.createTime = entry.getUInt("createTime");
         transaction.deadline = entry.getUInt("deadline");
         transaction.tMode = entry.getUInt("tMode");
-        transaction.oriReceiptId = entry.getInt("oriReceiptId");
+        transaction.oriReceiptId = int32(entry.getInt("oriReceiptId"));
         transaction.requestStatus = entry.getUInt("requestStatus");
         transaction.info = entry.getString("info");
         transaction.isFinance = entry.getUInt("isFinance");
@@ -885,7 +917,7 @@ contract Supply0 {
 
     function updateTransactionUInt1(
         string key,
-        int256 id,
+        int32 id,
         string field,
         uint256 value
     ) private {
@@ -905,7 +937,7 @@ contract Supply0 {
     function insertReceipt(
         address payeeAddr,
         address payerAddr,
-        int256 id,
+        int32 id,
         uint256 paidAmount,
         uint256 oriAmount,
         uint256 createTime,
@@ -943,7 +975,7 @@ contract Supply0 {
         );
     }
 
-    function findReceipt(string key, int256 id) private {
+    function findReceipt(string key, int32 id) private {
         Table t_receipt = openTable(ReceiptTable);
         Condition cond = t_receipt.newCondition();
         cond.EQ("id", id);
@@ -953,7 +985,7 @@ contract Supply0 {
         Entry entry = entries.get(0);
         receipt.payeeAddr = entry.getAddress("payeeAddr");
         receipt.payerAddr = entry.getAddress("payerAddr");
-        receipt.id = entry.getInt("id");
+        receipt.id = int32(entry.getInt("id"));
         receipt.paidAmount = entry.getUInt("paidAmount");
         receipt.oriAmount = entry.getUInt("oriAmount");
         receipt.createTime = entry.getUInt("createTime");
@@ -967,7 +999,7 @@ contract Supply0 {
 
     function updateReceiptUInt1(
         string key,
-        int256 id,
+        int32 id,
         string field,
         uint256 value
     ) private {
@@ -1166,7 +1198,7 @@ contract Supply0 {
         uint256 amount,
         uint256 deadline,
         uint256 tMode,
-        int256 oriReceiptId,
+        int32 oriReceiptId,
         string memory info,
         string memory tType
     ) private {
@@ -1206,7 +1238,7 @@ contract Supply0 {
             oriReceiptId = 0;
         }
 
-        int256 transactionId = int256(keccak256(abi.encodePacked(now)));
+        int32 transactionId = int32(keccak256(abi.encodePacked(now)));
         insertTransaction(
             payeeAddr,
             payerAddr,
@@ -1236,7 +1268,7 @@ contract Supply0 {
         bool isPayeeBank,
         address payerAddr, // bank
         bool isPayerBank,
-        int256 transactionId,
+        int32 transactionId,
         uint256 respond,
         string memory tType
     ) private {
@@ -1247,7 +1279,7 @@ contract Supply0 {
 
         findTransaction(toString(payeeAddr), transactionId);
         uint256 amount = transaction.amount;
-        int256 oriReceiptId = transaction.oriReceiptId;
+        int32 oriReceiptId = transaction.oriReceiptId;
 
         findCompany(payeeAddr, isPayeeBank);
         if (isPayeeBank == true) {
@@ -1328,7 +1360,7 @@ contract Supply0 {
                 );
             }
 
-            int256 receiptId = int256(keccak256(abi.encodePacked(now)));
+            int32 receiptId = int32(keccak256(abi.encodePacked(now)));
             insertReceipt(
                 payeeAddr,
                 newReceiptPayerAddr,
@@ -1388,7 +1420,7 @@ contract Supply0 {
         address payeeAddr,
         uint256 amount,
         uint256 deadline,
-        int256 oriReceiptId,
+        int32 oriReceiptId,
         string memory info
     ) public {
         _transactionRequest(
@@ -1410,7 +1442,7 @@ contract Supply0 {
         address payeeAddr,
         uint256 amount,
         uint256 deadline,
-        int256 oriReceiptId,
+        int32 oriReceiptId,
         string memory info
     ) public {
         _transactionRequest(
@@ -1430,7 +1462,7 @@ contract Supply0 {
     function transactionRespond(
         address senderAddr,
         address payerAddr,
-        int256 transactionId,
+        int32 transactionId,
         uint256 respond
     ) public {
         _transactionRespond(
@@ -1447,7 +1479,7 @@ contract Supply0 {
     function financeRespond(
         address senderAddr,
         address payerAddr,
-        int256 financeId,
+        int32 financeId,
         uint256 respond
     ) public {
         _transactionRespond(
@@ -1504,7 +1536,7 @@ contract Supply0 {
         address payerAddr,
         address payeeAddr,
         bool isPayeeBank,
-        int256 receiptId,
+        int32 receiptId,
         uint256 amount
     ) private {
         findCompany(payerAddr, false);
@@ -1547,7 +1579,7 @@ contract Supply0 {
     function payReceipt(
         address senderAddr,
         address payeeAddr,
-        int256 receiptId,
+        int32 receiptId,
         uint256 amount,
         bool isFinance
     ) public {

@@ -29,9 +29,9 @@
     }
   ],
   "authentication": {
-    "key": "/root/fisco/nodes/127.0.0.1/sdk/sdk.key",
-    "cert": "/root/fisco/nodes/127.0.0.1/sdk/sdk.crt",
-    "ca": "/root/fisco/nodes/127.0.0.1/sdk/ca.crt"
+    "key": "/Users/baijiadong/fisco/nodes/127.0.0.1/sdk/sdk.key",
+    "cert": "/Users/baijiadong/fisco/nodes/127.0.0.1/sdk/sdk.crt",
+    "ca": "/Users/baijiadong/fisco/nodes/127.0.0.1/sdk/ca.crt"
   },
   "groupID": 1,
   "chainID": 1,
