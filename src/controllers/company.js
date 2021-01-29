@@ -216,16 +216,23 @@ module.exports = {
       function: "getAllUnpaidReceipt",
       parameters: [addr]
     })
-    addrs = res.output.result[0]
+    if (res.output == undefined) {
+      sendData(ctx, [], 'OK', '查询所有以某公司为付款方的未还清的交易账单成功', 200)
+      return
+    }
+    let addrs = res.output.result[0]
+    let ids = res.output.result[1]
     let i = 0
     let ret = []
+    console.log(addrs)
     for (i = 0; i < addrs.length; i++) {
       let t = addrs[i];
+      let id = ids[i]
       const temp = await call({
         contractAddress: ca,
         contractName: AccountServ.getContractName(),
         function: "getReceipt",
-        parameters: [addr, t]
+        parameters: [t, id]
       })
       const bank = temp.output.result[0]
       console.log(temp.output.result[0])
