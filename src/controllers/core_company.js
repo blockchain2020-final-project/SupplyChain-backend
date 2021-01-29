@@ -357,6 +357,7 @@ module.exports = {
     let i = 0
     let ret = []
     console.log(addrs)
+
     for (i = 0; i < addrs.length; i++) {
       let t = addrs[i];
       let id = ids[i]
@@ -366,6 +367,9 @@ module.exports = {
         function: "getReceipt",
         parameters: [t, id]
       })
+      if (temp.output.result == undefined) {
+        continue
+      }
       const bank = temp.output.result[0]
       console.log(temp.output.result[0])
       ret.push(bank)

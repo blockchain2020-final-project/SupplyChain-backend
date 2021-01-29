@@ -406,6 +406,7 @@ module.exports = {
       sendData(ctx, [], 'OK', '获取某个普通企业没有还的贷款成功', 200)
       return
     }
+
     let addrs = res.output.result[0]
     let ids = res.output.result[1]
     let i = 0
@@ -420,6 +421,9 @@ module.exports = {
         function: "getReceipt",
         parameters: [t, id]
       })
+      if (temp.output.result == undefined) {
+        continue
+      }
       const bank = temp.output.result[0]
       console.log(temp.output.result[0])
       ret.push(bank)
