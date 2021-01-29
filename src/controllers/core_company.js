@@ -248,13 +248,11 @@ module.exports = {
       return
     }
     let addrs = res.output.result[0]
-    let ids = res.output.result[1]
     let i = 0
     let ret = []
     console.log(addrs)
     for (i = 0; i < addrs.length; i++) {
       let t = addrs[i];
-      let id = ids[i]
       const temp = await call({
         contractAddress: ca,
         contractName: AccountServ.getContractName(),

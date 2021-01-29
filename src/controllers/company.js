@@ -180,12 +180,11 @@ module.exports = {
     let ret = []
     for (i = 0; i < addrs.length; i++) {
       let t = addrs[i];
-      let id = ids[i]
       const temp = await call({
         contractAddress: ca,
         contractName: AccountServ.getContractName(),
         function: "getReceipt",
-        parameters: [t, id]
+        parameters: [addr, t]
       })
       const bank = temp.output.result[0]
       console.log(temp.output.result[0])
