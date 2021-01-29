@@ -25,7 +25,7 @@ module.exports = {
       function: "getAllCoreCompany",
       parameters: []
     })
-    addrs = res.output.result[0]
+    let addrs = res.output.result[0]
     let i = 0
     let ret = []
     for (i = 0; i < addrs.length; i++) {
@@ -92,7 +92,7 @@ module.exports = {
       function: "getAllTransactionRequest",
       parameters: [addr]
     })
-    addrs = res.output.result[0]
+    let addrs = res.output.result[0]
     let i = 0
     let ret = []
     for (i = 0; i < addrs.length; i++) {

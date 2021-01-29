@@ -54,7 +54,7 @@ module.exports = {
       function: "getAllNormalCompany",
       parameters: []
     })
-    addrs = res.output.result[0]
+    let addrs = res.output.result[0]
     let i = 0
     let ret = []
     for (i = 0; i < addrs.length; i++) {
@@ -123,7 +123,7 @@ module.exports = {
       parameters: [addr]
     })
     console.log(res)
-    addrs = res.output.result[0]
+    let addrs = res.output.result[0]
     let i = 0
     let ret = []
     for (i = 0; i < addrs.length; i++) {
@@ -174,7 +174,6 @@ module.exports = {
       sendData(ctx, [], 'OK', '查询所有以某公司为收款方的未还清的交易账单成功', 200)
       return
     }
-    addrs = res.output.result[0]
     let addrs = res.output.result[0]
     let ids = res.output.result[1]
     let i = 0
